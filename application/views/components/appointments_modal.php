@@ -383,8 +383,13 @@
 
             <div class="modal-footer">
 
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-ban me-2"></i>
                     <?= lang('cancel') ?>
+                </button>
+                <button id="delete-appointment" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-trash-alt me-2"></i>
+                    <?= lang('delete') ?>
                 </button>
                 <button id="save-appointment" class="btn btn-primary">
                     <i class="fas fa-check-square me-2"></i>

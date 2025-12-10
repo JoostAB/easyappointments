@@ -125,6 +125,16 @@ App.Components.AppointmentsModal = (function () {
      * Add the component event listeners.
      */
     function addEventListeners() {
+        $('#delete-appointment').on('click', () => {
+            //App.Utils.Calendar.deleteAppointment();
+            const appointmentId = $appointmentId.val();
+            if (!appointmentId) {
+                alert('No appointment');
+                return;
+            }
+            App.Utils.Calendar.deleteAppointment(appointmentId);
+        });
+        
         /**
          * Event: Manage Appointments Dialog Save Button "Click"
          *
