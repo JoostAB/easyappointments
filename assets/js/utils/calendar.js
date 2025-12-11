@@ -1,6 +1,6 @@
 App.Utils.Calendar = (function() {
     const $reloadAppointments = $('#reload-appointments');
-    
+
     function deleteAppointment(appointment) {
         if (Number.isInteger(Number(appointment))) {
             const appointmentId = Number(appointment);
@@ -86,11 +86,11 @@ App.Utils.Calendar = (function() {
 
                 App.Http.Calendar.deleteUnavailability(unavailabilityId).done(() => {
                     // Refresh calendar event items.
-                    $reloadAppointments.trigger('click');
+                    if ($reloadAppointments) {
+                        $reloadAppointments.trigger('click');
+                    }
                 });
             }
-
-        //alert('DELETE');
     }
 
     return {
