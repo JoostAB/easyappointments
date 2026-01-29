@@ -261,10 +261,15 @@ body legend {
     box-shadow: none;
 }
 
-.backend-page .nav-pills li {
-    width: 100%;
-    text-align: center;
-    margin: 5px;
+.backend-page {
+    .settings-nav-container {
+        border-right: 1px #ddd solid;
+    }
+    .nav-pills li {
+        width: 100%;
+        text-align: center;
+        margin: 5px;
+    }
 }
 
 .configs-table {
@@ -280,8 +285,12 @@ body legend {
         .required {
             display: flex;
             span {
-                translate: -10px 0px;
+                translate: 5px 0px;
             }
+        }
+        input[readonly] {
+            background-color: transparent !important;
+            border-color: transparent !important;
         }
     }
     input {

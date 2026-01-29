@@ -25,7 +25,7 @@ App.Pages.ConfigurationSettings = (function () {
     });
 
     const $btnTmpl = $('<button/>', {
-        'class': 'btn',
+        'class': 'btn btn-outline-secondary',
         'type': 'button',
         'data-row': '',
         'html': [
@@ -59,13 +59,13 @@ App.Pages.ConfigurationSettings = (function () {
         $field.attr('data-field', 'name');
         $field.attr('data-idx', cfgItem['index']);
         $field.val(cfgItem['name']);
-        $row.append($('<td/>').addClass('required').append('<span>*<span/>').append(
+        $row.append($('<td/>').addClass('required').append(
             $field.clone()
                 .prop('readonly', !(cfgItem['id'] == null))
                 .prop('required',true)
                 //.attr('pattern','\\S+.*') // <- With whitespace
                 .attr('pattern','\\S+') // <- Without whitespace
-            )
+            ).append((cfgItem['id'] == null)?'<span>*<span/>':'')
         );
 
         $field.attr('data-field', 'value');

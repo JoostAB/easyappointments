@@ -5,9 +5,9 @@
 <div id="configuration-settings-page" class="container backend-page">
     <div id="configuration-settings">
         <div class="row">
-            <div class="col-sm-3 offset-sm-1">
-                <?php component('settings_nav'); ?>
-            </div>
+            
+            <?php component('settings_nav'); ?>
+            
             <div class="col-sm-8">
                 <form>
                     <fieldset>
@@ -29,7 +29,7 @@
                             <?php endif; ?>
                         </div>
 
-                        <table class="configs-table table">
+                        <table class="configs-table table table-striped">
                             <thead>
                             <tr>
                                 <th class="col-name"><?= lang('name') ?></th>
