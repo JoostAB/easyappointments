@@ -31,6 +31,7 @@ class Appointments extends EA_Controller
         'notes',
         'color',
         'status',
+        'is_busy',
         'is_unavailability',
         'id_users_provider',
         'id_users_customer',
@@ -139,7 +140,7 @@ class Appointments extends EA_Controller
 
             $appointment_id = $this->appointments_model->save($appointment);
 
-            $appointment = $this->appointments_model->find($appointment);
+            $appointment = $this->appointments_model->find($appointment_id);
 
             $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_SAVE, $appointment);
 

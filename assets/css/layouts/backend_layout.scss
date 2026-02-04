@@ -272,6 +272,15 @@ body legend {
     }
 }
 
+.list-group-item {
+    div {
+        align-content: center;
+        height: stretch;
+        border: 1px #ddd solid;
+        padding: 0px 10px;
+    }
+}
+
 .configs-table {
     th {
         &.col-name {

@@ -136,6 +136,18 @@
                             'attributes' => 'id="appointment-status-options"',
                         ]); ?>
 
+                        <div class="d-flex justify-content-start align-items-center mb-3">
+                            <h5 class="text-black-50 mb-0 me-3 fw-light">
+                                Nieuwe versie
+                            </h5>
+                        </div>
+                        <p class="form-text text-muted mb-4">
+                            Nieuwe versie
+                        </p>
+                        <?php component('booking_statusses', [
+                            'attributes' => 'id="appointment-status-options"',
+                        ]); ?>
+
                     </fieldset>
                 </form>
             </div>

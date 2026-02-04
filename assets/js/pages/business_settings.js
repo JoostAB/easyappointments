@@ -103,10 +103,14 @@ App.Pages.BusinessSettings = (function () {
         }
 
         const businessSettings = serialize();
+        const bookingStatusses = App.Components.BookingStatusses.serialize();
+        const deletedStatusses = App.Components.BookingStatusses.getDeleted();
 
-        App.Http.BusinessSettings.save(businessSettings).done(() => {
+        App.Http.BusinessSettings.save(businessSettings, bookingStatusses, deletedStatusses).done(() => {
             App.Layouts.Backend.displayNotification(lang('settings_saved'));
         });
+
+        
     }
 
     /**
