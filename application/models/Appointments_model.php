@@ -28,6 +28,7 @@ class Appointments_model extends EA_Model
         'id_users_customer' => 'integer',
         'id_services' => 'integer',
         'total_price' => 'float',
+        'id_booking_statusses' => 'integer',
     ];
 
     /**
@@ -49,6 +50,7 @@ class Appointments_model extends EA_Model
         'googleCalendarId' => 'id_google_calendar',
         'caldavCalendarId' => 'id_caldav_calendar',
         'totalPrice' => 'total_price',
+        'bookingStatusId' => 'id_booking_statusses',
     ];
 
     /**
@@ -598,6 +600,7 @@ class Appointments_model extends EA_Model
                 $appointment['id_google_calendar'] !== null ? $appointment['id_google_calendar'] : null,
             'caldavCalendarId' =>
                 $appointment['id_caldav_calendar'] !== null ? $appointment['id_caldav_calendar'] : null,
+            'bookingStatusId' => $appointment['id_booking_statusses'] !== null ? (int) $appointment['id_booking_statusses'] : null,
         ];
 
         $appointment = $encoded_resource;
@@ -663,6 +666,10 @@ class Appointments_model extends EA_Model
 
         if (array_key_exists('caldavCalendarId', $appointment)) {
             $decoded_resource['id_caldav_calendar'] = $appointment['caldavCalendarId'];
+        }
+
+        if (array_key_exists('bookingStatusId', $appointment)) {
+            $decoded_resource['id_booking_statusses'] = $appointment['bookingStatusId'];
         }
 
         $decoded_resource['is_unavailability'] = false;

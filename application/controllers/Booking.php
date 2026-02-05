@@ -56,6 +56,7 @@ class Booking extends EA_Controller
         'id_services',
         'ids_subservices',
         'total_price',
+        'id_booking_statusses',
     ];
 
     /**
@@ -75,6 +76,7 @@ class Booking extends EA_Controller
         $this->load->model('customers_model');
         $this->load->model('settings_model');
         $this->load->model('consents_model');
+		$this->load->model('booking_statusses_model');
 
         $this->load->library('timezones');
         $this->load->library('synchronization');
@@ -494,9 +496,9 @@ class Booking extends EA_Controller
             $appointment['is_unavailability'] = false;
             $appointment['color'] = $service['color'];
 
-            $appointment_status_options_json = setting('appointment_status_options', '[]');
-            $appointment_status_options = json_decode($appointment_status_options_json, true) ?? [];
-            $appointment['status'] = $appointment_status_options[0] ?? null;
+            $defStatus = $this->booking_statusses_model->getDefault();
+			$appointment['id_booking_statusses'] = $defStatus['id'];
+            $appointment['status'] = $defStatus['name'];
             if (!isset($appointment['end_datetime'])) {
                 $appointment['end_datetime'] = $this->appointments_model->calculate_end_datetime($appointment);
             }

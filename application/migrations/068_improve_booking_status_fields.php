@@ -66,12 +66,29 @@ class Migration_Improve_Booking_Status_Fields extends EA_Migration
 
             $this->dbforge->add_column('appointments', $fields);
         }
+
+        if (!$this->db->field_exists('id_booking_statusses', 'appointments')) {
+            $fields = [
+                'id_booking_statusses' => [
+                    'type' => 'INT',
+                    'constraint' => 11,
+                    'default' => '1',
+                    'after' => 'is_busy',
+                ],
+            ];
+
+            $this->dbforge->add_column('appointments', $fields);
+        }
 	}
 
     /**
      * Downgrade method.
      */
 	public function down(): void {
+        if ($this->db->field_exists('id_booking_statusses', 'appointments')) {
+            $this->dbforge->drop_column('appointments', 'id_booking_statusses');
+        }
+        
         if ($this->db->field_exists('is_busy', 'appointments')) {
             $this->dbforge->drop_column('appointments', 'is_busy');
         }

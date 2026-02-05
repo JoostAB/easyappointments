@@ -42,8 +42,26 @@ class Booking_Statusses_model extends EA_Model {
         return $this->db->from('booking_statusses');
     }
 
-    public function get() {
-        $statusses = $this->db->get('booking_statusses')->result_array();
+    public function getDefault() {
+		$statusses = $this->get( null, null, null, 'id' );
+		return $statusses[0] ?? null;
+    }
+
+    public function get(
+        array|string|null $where = null,
+        ?int $limit = null,
+        ?int $offset = null,
+        ?string $order_by = null,
+    ): array {
+        if ($where !== null) {
+            $this->db->where($where);
+        }
+
+        if ($order_by !== null) {
+            $this->db->order_by($this->quote_order_by($order_by));
+        }
+
+        $statusses = $this->db->get('booking_statusses', $limit, $offset)->result_array();
 
         foreach ($statusses as &$status) {
             $this->cast($status);

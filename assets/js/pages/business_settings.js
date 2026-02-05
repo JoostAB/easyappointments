@@ -109,8 +109,6 @@ App.Pages.BusinessSettings = (function () {
         App.Http.BusinessSettings.save(businessSettings, bookingStatusses, deletedStatusses).done(() => {
             App.Layouts.Backend.displayNotification(lang('settings_saved'));
         });
-
-        
     }
 
     /**
