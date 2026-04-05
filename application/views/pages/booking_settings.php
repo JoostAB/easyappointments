@@ -5,9 +5,9 @@
 <div id="booking-settings-page" class="container backend-page">
     <div id="booking-settings">
         <div class="row">
-            <div class="col-sm-3 offset-sm-1">
-                <?php component('settings_nav'); ?>
-            </div>
+            
+            <?php component('settings_nav'); ?>
+            
             <div class="col-sm-6">
                 <form>
                     <fieldset>

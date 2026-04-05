@@ -4,9 +4,9 @@
 
 <div id="integrations-page" class="container backend-page">
     <div class="row">
-        <div class="col-sm-3 offset-sm-1">
-            <?php component('settings_nav'); ?>
-        </div>
+        
+        <?php component('settings_nav'); ?>
+        
         <div id="integrations" class="col-sm-6">
             <h4 class="text-black-50 border-bottom py-3 mb-3 fw-light">
                 <?= lang('integrations') ?>

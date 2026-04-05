@@ -4,9 +4,9 @@
 
 <div id="google-analytics-settings-page" class="container backend-page">
     <div class="row">
-        <div class="col-sm-3 offset-sm-1">
-            <?php component('settings_nav'); ?>
-        </div>
+        
+        <?php component('settings_nav'); ?>
+        
         <div id="google-analytics-settings" class="col-sm-6">
             <form>
                 <fieldset>

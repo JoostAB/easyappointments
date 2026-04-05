@@ -50,13 +50,13 @@ class Migration_Add_Sub_Services extends EA_Migration
                 'ALTER TABLE `' .
                     $this->db->dbprefix('subservices') .
                     '`
-                ADD CONSTRAINT `subservice_subservice` FOREIGN KEY (`subservice`) REFERENCES `' .
+                ADD CONSTRAINT `subservices_subservice_subservice` FOREIGN KEY (`subservice`) REFERENCES `' .
                     $this->db->dbprefix('services') .
                     '` (`id`)
                 ON DELETE CASCADE
                 ON UPDATE CASCADE,
 
-                ADD CONSTRAINT `subservice_service` FOREIGN KEY (`service`) REFERENCES `' .
+                ADD CONSTRAINT `subservices_subservice_service` FOREIGN KEY (`service`) REFERENCES `' .
                     $this->db->dbprefix('services') .
                     '` (`id`)
                 ON DELETE CASCADE
@@ -96,13 +96,13 @@ class Migration_Add_Sub_Services extends EA_Migration
                 'ALTER TABLE `' .
                     $this->db->dbprefix('appointments_subservices') .
                     '`
-                ADD CONSTRAINT `subservice_service` FOREIGN KEY (`subservice`) REFERENCES `' .
+                ADD CONSTRAINT `appointments_subservices_subservice_service` FOREIGN KEY (`subservice`) REFERENCES `' .
                     $this->db->dbprefix('services') .
                     '` (`id`)
                 ON DELETE CASCADE
                 ON UPDATE CASCADE,
 
-                ADD CONSTRAINT `appointment_appointments` FOREIGN KEY (`appointment`) REFERENCES `' .
+                ADD CONSTRAINT `appointments_subservices_appointment_appointments` FOREIGN KEY (`appointment`) REFERENCES `' .
                     $this->db->dbprefix('appointments') .
                     '` (`id`)
                 ON DELETE CASCADE
@@ -121,10 +121,10 @@ class Migration_Add_Sub_Services extends EA_Migration
         if ($this->db->table_exists('subservices')) {
 
             $this->db->query(
-                'ALTER TABLE `' . $this->db->dbprefix('subservices') . '` DROP FOREIGN KEY `subservice_subservice`',
+                'ALTER TABLE `' . $this->db->dbprefix('subservices') . '` DROP FOREIGN KEY `subservices_subservice_subservice`',
             );
             $this->db->query(
-                'ALTER TABLE `' . $this->db->dbprefix('subservices') . '` DROP FOREIGN KEY `subservice_service`',
+                'ALTER TABLE `' . $this->db->dbprefix('subservices') . '` DROP FOREIGN KEY `subservices_subservice_service`',
             );
             
             $this->dbforge->drop_table('subservices');
@@ -133,10 +133,10 @@ class Migration_Add_Sub_Services extends EA_Migration
         if ($this->db->table_exists('appointments_subservices')) {
 
             $this->db->query(
-                'ALTER TABLE `' . $this->db->dbprefix('appointments_subservices') . '` DROP FOREIGN KEY `appointment_appointments`',
+                'ALTER TABLE `' . $this->db->dbprefix('appointments_subservices') . '` DROP FOREIGN KEY `appointments_subservices_subservice_serviceappointment_appointments`',
             );
             $this->db->query(
-                'ALTER TABLE `' . $this->db->dbprefix('appointments_subservices') . '` DROP FOREIGN KEY `subservice_service`',
+                'ALTER TABLE `' . $this->db->dbprefix('appointments_subservices') . '` DROP FOREIGN KEY `appointments_subservices_subservice_service`',
             );
             
             $this->dbforge->drop_table('appointments_subservices');

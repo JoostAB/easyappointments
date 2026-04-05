@@ -44,6 +44,7 @@
  * @property Service_categories_model $service_categories_model
  * @property Consents_model $consents_model
  * @property Customers_model $customers_model
+ * @property Configs_model $configs_model
  * @property Providers_model $providers_model
  * @property Roles_model $roles_model
  * @property Secretaries_model $secretaries_model
@@ -80,7 +81,10 @@ class EA_Controller extends CI_Controller
     {
         parent::__construct();
 
-        $this->load->library('accounts');
+        // Before anything else, load configuration items from db
+        $this->load_configs_from_db();
+
+        $this->load->library( 'accounts' );
 
         $this->ensure_user_exists();
         $this->configure_timezone();
@@ -88,7 +92,7 @@ class EA_Controller extends CI_Controller
         $this->load_common_html_vars();
         $this->load_common_script_vars();
 
-        rate_limit($this->input->ip_address());
+        rate_limit( $this->input->ip_address() );
     }
 
     private function ensure_user_exists()
@@ -166,5 +170,25 @@ class EA_Controller extends CI_Controller
         $default_timezone = setting('default_timezone');
 
         date_default_timezone_set($default_timezone);
+    }
+
+    /**
+     * Load configuration items from DB
+     * These can be new items, or overruling configuration items from config files
+     */
+    private function load_configs_from_db(): void
+    {
+        if (!$this->db->table_exists('configs')) {
+			return;
+        }
+
+		$this->load->model( 'configs_model' );
+
+		$configs = $this->configs_model->get();
+
+        foreach ($configs as $cfg) {
+			config( [ $cfg['name'] => $cfg['value'] ] );
+        }
+        
     }
 }

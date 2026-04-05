@@ -44,6 +44,7 @@ $lang['appointment_details_title'] = 'Appointment Details';
 $lang['customer_details_title'] = 'Customer Details';
 $lang['service'] = 'Service';
 $lang['subservice'] = 'Sub-service';
+$lang['is_subservice'] = 'Is sub-service';
 $lang['subservices'] = 'Sub-services';
 $lang['provider'] = 'Provider';
 $lang['customer'] = 'Customer';
@@ -496,4 +497,9 @@ $lang['welcome_new'] = 'Welcome to';
 $lang['welcome_user'] = 'Welcome back';
 $lang['click_if_not'] = 'Click here if not';
 $lang['token_copied'] = 'Token copied to clipboard';
+$lang['configuration'] = 'Configuration';
+$lang['value'] = 'Value';
+$lang['date_seperator'] = 'Date seperator';
+$lang['date_seperator_hint'] = 'The character that seperates the date, month and year.';
+$lang['settings_are_invalid'] = 'Settings are invalid';
 // End
