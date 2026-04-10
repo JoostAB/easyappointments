@@ -208,7 +208,7 @@ App.Http.Calendar = (function () {
      *
      * @returns {jQuery.jqXHR}
      */
-    function getCalendarAppointments(recordId, startDate, endDate, filterType) {
+    function getCalendarAppointments(recordId, startDate, endDate, filterType, onlyBusy = false) {
         const url = App.Utils.Url.siteUrl('calendar/get_calendar_appointments');
 
         const data = {
@@ -216,6 +216,7 @@ App.Http.Calendar = (function () {
             record_id: recordId,
             start_date: moment(startDate).format('YYYY-MM-DD'),
             end_date: moment(endDate).format('YYYY-MM-DD'),
+            only_busy: onlyBusy,
             filter_type: filterType,
         };
 

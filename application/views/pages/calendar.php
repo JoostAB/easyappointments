@@ -25,7 +25,7 @@
                     <i class="fas fa-rotate me-2"></i>
                     <?= lang('enable_sync') ?>
                 </button>
-
+                
                 <div class="btn-group" id="sync-button-group" hidden>
                     <button type="button" class="btn btn-light" id="trigger-sync"
                             data-tippy-content="<?= lang('trigger_sync_hint') ?>">
@@ -45,6 +45,7 @@
                             </a>
                         </li>
                     </ul>
+                    
                 </div>
             <?php endif; ?>
 
@@ -118,6 +119,7 @@
     'require_city' => vars('require_city'),
     'require_zip_code' => vars('require_zip_code'),
     'require_notes' => vars('require_notes'),
+    'booking_statusses' => vars('booking_statusses'),
 ]); ?>
 
 <?php component('unavailabilities_modal', [

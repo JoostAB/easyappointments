@@ -338,6 +338,37 @@ body legend {
 
 /* BACKEND CALENDAR PAGE
    -------------------------------------------------------------------- */
+.calevent-notbusy {
+    // background: repeating-linear-gradient(
+    //     -45deg,
+    //     transparent,
+    //     transparent 10px,
+    //     #ccc 10px,
+    //     #ccc 20px
+    // );
+    background: repeating-linear-gradient(
+        -45deg,
+        #ffffff88,
+        #ffffff88 2px,
+        #cccccc88 2px,
+        #cccccc88 4px
+    );
+
+    // Test for gradient stripes
+    // background: repeating-linear-gradient(
+    //     45deg,
+    //     transparent,
+    //     transparent 10px,
+    //     #ccc 10px,
+    //     #ccc 20px
+    //     ),
+    //     linear-gradient(
+    //     to bottom,
+    //     #eee,
+    //     #999
+    //     );
+    opacity: .5;
+}
 
 #calendar-page {
     padding-top: 0;

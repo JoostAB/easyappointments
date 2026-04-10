@@ -375,6 +375,15 @@ class Availability
             ),
         );
 
+        $tmp = [];
+        foreach ($appointments as $appointment) {
+            if ($appointment['is_busy'] == true) {
+				array_push( $tmp, $appointment );
+            }
+        }
+
+		$appointments = $tmp;
+        
         // Find the empty spaces on the plan. The first split between the plan is due to a break (if any). After that
         // every reserved appointment is considered to be a taken space in the plan.
         $working_day = strtolower(date('l', strtotime($date)));

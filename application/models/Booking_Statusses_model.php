@@ -43,7 +43,7 @@ class Booking_Statusses_model extends EA_Model {
     }
 
     public function getDefault() {
-		$statusses = $this->get( null, null, null, 'id' );
+		$statusses = $this->get();
 		return $statusses[0] ?? null;
     }
 
@@ -51,7 +51,7 @@ class Booking_Statusses_model extends EA_Model {
         array|string|null $where = null,
         ?int $limit = null,
         ?int $offset = null,
-        ?string $order_by = null,
+        ?string $order_by = 'id',
     ): array {
         if ($where !== null) {
             $this->db->where($where);

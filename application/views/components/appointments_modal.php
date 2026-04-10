@@ -14,6 +14,7 @@
  * @var array $require_city
  * @var array $require_zip_code
  * @var array $require_notes
+ * @var array $booking_statusses
  */
 ?>
 <div id="appointments-modal" class="modal fade">
@@ -154,13 +155,13 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="appointment-status" class="form-label">
+                                    <label for="booking-status" class="form-label">
                                         <?= lang('status') ?>
                                     </label>
-                                    <select id="appointment-status" class="form-select">
-                                        <?php foreach ($appointment_status_options as $appointment_status_option): ?>
-                                            <option value="<?= e($appointment_status_option) ?>">
-                                                <?= e($appointment_status_option) ?>
+                                    <select id="booking-status" class="form-select">
+                                        <?php foreach ($booking_statusses as $status): ?>
+                                            <option value="<?= $status['id'] ?>">
+                                                <?= e($status['name']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

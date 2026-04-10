@@ -503,4 +503,6 @@ $lang['date_seperator'] = 'Date seperator';
 $lang['date_seperator_hint'] = 'The character that seperates the date, month and year.';
 $lang['settings_are_invalid'] = 'Settings are invalid';
 $lang['occupied'] = 'Occupied';
+$lang['show_cancelled'] = 'Show cancelled';
+$lang['hide_cancelled'] = 'Hide cancelled';
 // End

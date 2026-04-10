@@ -36,7 +36,7 @@ App.Components.AppointmentsModal = (function () {
     const $saveAppointment = $('#save-appointment');
     const $appointmentId = $('#appointment-id');
     const $appointmentLocation = $('#appointment-location');
-    const $appointmentStatus = $('#appointment-status');
+    const $bookingStatus = $('#booking-status');
     const $appointmentColor = $('#appointment-color');
     const $appointmentNotes = $('#appointment-notes');
     const $reloadAppointments = $('#reload-appointments');
@@ -93,6 +93,7 @@ App.Components.AppointmentsModal = (function () {
         $selectProvider.val(appointment.id_users_provider);
         totalPrice = appointment.total_price?appointment.total_price:0;
         $totalPrice.val(App.Utils.String.formatPrice(totalPrice));
+        $bookingStatus.val(appointment.id_booking_statusses);
     }
 
     /**
@@ -158,6 +159,14 @@ App.Components.AppointmentsModal = (function () {
                 }
             }) ;
             
+            let statusText = $bookingStatus.find('option:selected').text();
+            const bStatusses = vars('booking_statusses')
+            bStatusses.forEach((bStatus) => {
+                if (bStatus['id'] == $bookingStatus.val()) {
+                    statusText = bStatus['name'];
+                }
+            });
+
             const appointment = {
                 id_services: $selectService.val(),
                 id_users_provider: $selectProvider.val(),
@@ -165,11 +174,12 @@ App.Components.AppointmentsModal = (function () {
                 end_datetime: endDatetime,
                 location: $appointmentLocation.val(),
                 color: App.Components.ColorSelection.getColor($appointmentColor),
-                status: $appointmentStatus.val(),
+                status: statusText,
                 notes: $appointmentNotes.val(),
                 is_unavailability: Number(false),
                 ids_subservices: selectedSubservices,
                 total_price: totalPrice,
+                id_booking_statusses: $bookingStatus.val(),
             };
 
             if ($appointmentId.val() !== '') {
@@ -430,6 +440,16 @@ App.Components.AppointmentsModal = (function () {
             calculateTotals();
         });
 
+        $bookingStatus.on('change', () => {
+            const status = $bookingStatus.val();
+            const curr = vars('booking_statusses').find((st) => {
+                return st['id'] == status;
+            });
+
+            
+            const name = curr;
+        });
+
         /**
          * Event: Selected Service "Change"
          *
@@ -537,8 +557,8 @@ App.Components.AppointmentsModal = (function () {
         $appointmentsModal.find('.modal-message').addClass('.d-none');
         $appointmentsModal.find('.is-invalid').removeClass('is-invalid');
 
-        const defaultStatusValue = $appointmentStatus.find('option:first').val();
-        $appointmentStatus.val(defaultStatusValue);
+        const defaultStatusValue = $bookingStatus.find('option:first').val();
+        $bookingStatus.val(defaultStatusValue);
 
         $language.val(vars('default_language'));
         $timezone.val(vars('default_timezone'));

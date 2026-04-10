@@ -58,6 +58,7 @@ class Calendar extends EA_Controller
         'id_services',
         'ids_subservices',
         'total_price',
+        'id_booking_statusses',
     ];
 
     public array $optional_appointment_fields = [
@@ -79,6 +80,7 @@ class Calendar extends EA_Controller
         $this->load->model('subservices_model');
         $this->load->model('providers_model');
         $this->load->model('roles_model');
+        $this->load->model('booking_statusses_model');
 
         $this->load->library('accounts');
         $this->load->library('google_sync');
@@ -179,6 +181,8 @@ class Calendar extends EA_Controller
 
         $appointment_status_options = setting('appointment_status_options');
 
+		$booking_statusses = $this->booking_statusses_model->get();
+
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
@@ -199,6 +203,7 @@ class Calendar extends EA_Controller
             'default_language' => setting('default_language'),
             'default_timezone' => setting('default_timezone'),
             'date_seperator' => setting('date_seperator'),
+            'booking_statusses' => $booking_statusses,
         ]);
 
         html_vars([
@@ -666,6 +671,8 @@ class Calendar extends EA_Controller
 
             $filter_type = request('filter_type');
 
+			$only_busy = request( 'only_busy' ) !== "false";
+
             if (!$filter_type && !$is_all) {
                 json_response([
                     'appointments' => [],
@@ -712,7 +719,7 @@ class Calendar extends EA_Controller
                 AND is_unavailability = 0
             ';
 
-            $response['appointments'] = $this->appointments_model->get($where_clause);
+            $response['appointments'] = $this->appointments_model->get($where_clause,$only_busy);
 
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);

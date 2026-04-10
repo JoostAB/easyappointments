@@ -35,6 +35,7 @@ App.Utils.CalendarDefaultView = (function () {
     let $popoverTarget;
     let fullCalendar = null;
     let lastFocusedEventData; // Contains event data for later use.
+    let showCancelled = false;
 
     /**
      * Add the utility event listeners.
@@ -59,6 +60,19 @@ App.Utils.CalendarDefaultView = (function () {
                 calendarView.activeStart,
                 calendarView.activeEnd,
             );
+        });
+
+        const $showCancelledBtn = $('.fc-showCancelledBtn-button');
+        $showCancelledBtn.html(lang('show_cancelled'));
+        $showCancelledBtn.on('click', () => {
+            showCancelled = !showCancelled;
+            $reloadAppointments.trigger('click');
+            $showCancelledBtn.html(
+                showCancelled
+                    ? lang('hide_cancelled')
+                    : lang('show_cancelled')
+                );
+            
         });
 
         /**
@@ -1199,7 +1213,7 @@ App.Utils.CalendarDefaultView = (function () {
 
         endDate = moment(endDate).format('YYYY-MM-DD');
 
-        App.Http.Calendar.getCalendarAppointments(recordId, startDate, endDate, filterType)
+        App.Http.Calendar.getCalendarAppointments(recordId, startDate, endDate, filterType, !showCancelled)
             .done((response) => {
                 const calendarEventSources = fullCalendar.getEventSources();
 
@@ -1229,7 +1243,9 @@ App.Utils.CalendarDefaultView = (function () {
                         start: moment(appointment.start_datetime).toDate(),
                         end: moment(appointment.end_datetime).toDate(),
                         allDay: false,
-                        color: appointment.color,
+                        color: appointment.is_busy? appointment.color: '#83828277',
+                        //color: appointment.color,
+                        className: appointment.is_busy?'':'calevent-notbusy',
                         data: appointment, // Store appointment data for later use.
                         display: 'block',
                     };
@@ -1492,6 +1508,9 @@ App.Utils.CalendarDefaultView = (function () {
 
         // Initialize page calendar
         fullCalendar = new FullCalendar.Calendar($calendar[0], {
+            customButtons: {
+                showCancelledBtn: {}
+            },
             initialView,
             locale: vars('language_code'),
             nowIndicator: true,
@@ -1511,7 +1530,7 @@ App.Utils.CalendarDefaultView = (function () {
             selectMirror: true,
             themeSystem: 'bootstrap5',
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prev,next today showCancelledBtn',
                 center: 'title',
                 right: 'timeGridDay,timeGridWeek,dayGridMonth',
             },
@@ -1649,7 +1668,7 @@ App.Utils.CalendarDefaultView = (function () {
             $('#calendar-actions button').prop('disabled', true);
         }
 
-        // Automatically refresh the calendar page every 10 seconds (without loading animation).
+        //Automatically refresh the calendar page every 10 seconds (without loading animation).
         setInterval(() => {
             if ($('.popover').length || App.Utils.CalendarSync.isCurrentlySyncing()) {
                 return;
