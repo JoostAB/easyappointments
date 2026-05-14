@@ -215,6 +215,14 @@ App.Utils.CalendarDefaultView = (function () {
             }
         });
 
+        $calendarPage.on('click', '.cancel-popover', (event) => {
+            if ($popoverTarget) {
+                $popoverTarget.popover('dispose');
+            }
+
+            let tst = lastFocusedEventData.extendedProps.data;
+        });
+
         /**
          * Event: Popover Delete Button "Click"
          *
@@ -598,7 +606,7 @@ App.Utils.CalendarDefaultView = (function () {
                 ],
             });
         } else {
-            displayEdit = vars('privileges').appointments.edit === true ? '' : 'd-none';
+            displayEdit = vars('privileges').appointments.edit === true ? 'me-2' : 'd-none';
             displayDelete = vars('privileges').appointments.delete === true ? 'me-2' : 'd-none';
 
             const customerInfo = [];
@@ -741,17 +749,19 @@ App.Utils.CalendarDefaultView = (function () {
                                     }),
                                 ],
                             }),
+                            
                             $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary ' + displayDelete,
+                                'class': 'cancel-popover btn btn-outline-secondary ' + displayDelete,
                                 'html': [
                                     $('<i/>', {
-                                        'class': 'fas fa-trash-alt me-2',
+                                        'class': 'fas fa-calendar-xmark me-2',
                                     }),
                                     $('<span/>', {
-                                        'text': lang('delete'),
+                                        'text': lang('cancel'),
                                     }),
                                 ],
                             }),
+                            
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
                                 'html': [
@@ -760,6 +770,14 @@ App.Utils.CalendarDefaultView = (function () {
                                     }),
                                     $('<span/>', {
                                         'text': lang('edit'),
+                                    }),
+                                ],
+                            }),
+                            $('<button/>', {
+                                'class': 'delete-popover btn btn-outline-secondary ' + displayDelete,
+                                'html': [
+                                    $('<i/>', {
+                                        'class': 'fas fa-trash-alt',
                                     }),
                                 ],
                             }),
