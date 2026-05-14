@@ -71,7 +71,11 @@ App.Pages.ConfigurationSettings = (function () {
         $field.attr('data-field', 'value');
         $field.attr('data-idx', cfgItem['index']);
         $field.val(cfgItem['value']);
-        $row.append($('<td/>').append($field.clone()));
+        $inpField = $field.clone();
+        if (cfgItem['flags'] && 1 > 0) {
+            $inpField.attr('type','password');
+        }
+        $row.append($('<td/>').append($inpField));
 
         $field.attr('data-field', 'description');
         $field.attr('data-idx', cfgItem['index']);
