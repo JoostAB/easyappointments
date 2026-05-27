@@ -63,12 +63,6 @@ class Configuration_settings extends EA_Controller
 
         $cfs = $this->configs_model->get();
 
-        // foreach ($cfs as &$c) {
-		// 	if (Configuration_settings::FLAG_SECRET && $c['flags'] > 0) {
-		// 		$c['value'] = '';
-        //     } 
-        // }
-
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
