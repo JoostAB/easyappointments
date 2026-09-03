@@ -22,7 +22,7 @@ App.Pages.Services = (function () {
     const $price = $('#price');
     const $currency = $('#currency');
     const $serviceCategoryId = $('#service-category-id');
-    const $availabilitiesType = $('#availabilities-type');
+    const $slotInterval = $('#slot-interval');
     const $attendantsNumber = $('#attendants-number');
     const $isPrivate = $('#is-private');
     const $location = $('#location');
@@ -70,18 +70,18 @@ App.Pages.Services = (function () {
             const $link = $('<a/>', {
                 'href': dedicatedUrl,
                 'target': '_blank',
+                'data-bs-toggle': 'tooltip',
+                'title': lang('booking_link'),
+                'aria-label': lang('booking_link'),
                 'html': [
                     $('<i/>', {
-                        'class': 'fas fa-link me-2',
-                    }),
-
-                    $('<span/>', {
-                        'text': lang('booking_link'),
+                        'class': 'fas fa-link',
                     }),
                 ],
             });
 
             $services.find('.record-details h4').find('a').remove().end().append($link);
+            new bootstrap.Tooltip($link[0]);
 
             App.Pages.Services.display(service);
             $filterServices.find('.selected').removeClass('selected');
@@ -98,6 +98,8 @@ App.Pages.Services = (function () {
             $filterServices.find('button').prop('disabled', true);
             $filterServices.find('.results').css('color', '#AAA');
             App.Components.ColorSelection.enable($color);
+            $('#service-providers input:checkbox').prop('disabled', false);
+            $('#select-all-providers, #select-none-providers').prop('disabled', false);
         });
 
         /**
@@ -114,6 +116,8 @@ App.Pages.Services = (function () {
             $filterServices.find('button').prop('disabled', true);
             $filterServices.find('.results').css('color', '#AAA');
             App.Components.ColorSelection.enable($color);
+            $('#service-providers input:checkbox').prop('disabled', false);
+            $('#select-all-providers, #select-none-providers').prop('disabled', false);
 
             // Default values
             $name.val('Service');
@@ -121,7 +125,7 @@ App.Pages.Services = (function () {
             $price.val('0');
             $currency.val('');
             $serviceCategoryId.val('');
-            $availabilitiesType.val('flexible');
+            $slotInterval.val('15');
             $attendantsNumber.val('1');
         });
 
@@ -153,11 +157,19 @@ App.Pages.Services = (function () {
                 description: $description.val(),
                 location: $location.val(),
                 color: App.Components.ColorSelection.getColor($color),
-                availabilities_type: $availabilitiesType.val(),
+                slot_interval: $slotInterval.val(),
                 attendants_number: $attendantsNumber.val(),
                 is_private: Number($isPrivate.prop('checked')),
                 id_service_categories: $serviceCategoryId.val() || undefined,
             };
+
+            // Include service providers.
+            service.providers = [];
+            $('#service-providers input:checkbox').each((index, checkboxEl) => {
+                if ($(checkboxEl).prop('checked')) {
+                    service.providers.push($(checkboxEl).attr('data-id'));
+                }
+            });
 
             if ($id.val() !== '') {
                 service.id = $id.val();
@@ -182,6 +194,8 @@ App.Pages.Services = (function () {
             $filterServices.find('button').prop('disabled', true);
             $filterServices.find('.results').css('color', '#AAA');
             App.Components.ColorSelection.enable($color);
+            $('#service-providers input:checkbox').prop('disabled', false);
+            $('#select-all-providers, #select-none-providers').prop('disabled', false);
         });
 
         /**
@@ -206,6 +220,20 @@ App.Pages.Services = (function () {
             ];
 
             App.Utils.Message.show(lang('delete_service'), lang('delete_record_prompt'), buttons);
+        });
+
+        /**
+         * Event: Select All Providers Button "Click"
+         */
+        $services.on('click', '#select-all-providers', () => {
+            $('#service-providers input:checkbox').prop('checked', true);
+        });
+
+        /**
+         * Event: Select None Providers Button "Click"
+         */
+        $services.on('click', '#select-none-providers', () => {
+            $('#service-providers input:checkbox').prop('checked', false);
         });
     }
 
@@ -296,6 +324,11 @@ App.Pages.Services = (function () {
         $services.find('.record-details .is-invalid').removeClass('is-invalid');
         $services.find('.record-details .form-message').hide();
 
+        // Reset providers checkboxes
+        $('#service-providers input:checkbox').prop('disabled', true).prop('checked', false);
+        $('#select-all-providers, #select-none-providers').prop('disabled', true);
+        $('#service-providers a').remove();
+
         App.Components.ColorSelection.disable($color);
     }
 
@@ -312,13 +345,50 @@ App.Pages.Services = (function () {
         $currency.val(service.currency);
         $description.val(service.description);
         $location.val(service.location);
-        $availabilitiesType.val(service.availabilities_type);
+        $slotInterval.val(service.slot_interval);
         $attendantsNumber.val(service.attendants_number);
         $isPrivate.prop('checked', service.is_private);
         App.Components.ColorSelection.setColor($color, service.color);
 
         const serviceCategoryId = service.id_service_categories !== null ? service.id_service_categories : '';
         $serviceCategoryId.val(serviceCategoryId);
+
+        // Display providers
+        $('#service-providers a').remove();
+        $('#service-providers input:checkbox').prop('checked', false);
+
+        if (service.providers) {
+            service.providers.forEach((serviceProviderId) => {
+                const $checkbox = $('#service-providers input[data-id="' + serviceProviderId + '"]');
+
+                if (!$checkbox.length) {
+                    return;
+                }
+
+                $checkbox.prop('checked', true);
+
+                // Add dedicated service-provider link.
+                const dedicatedUrl = App.Utils.Url.siteUrl(
+                    '?service=' + encodeURIComponent(service.id) + '&provider=' + encodeURIComponent(serviceProviderId),
+                );
+
+                const $link = $('<a/>', {
+                    'href': dedicatedUrl,
+                    'target': '_blank',
+                    'data-bs-toggle': 'tooltip',
+                    'title': lang('booking_link'),
+                    'aria-label': lang('booking_link'),
+                    'html': [
+                        $('<i/>', {
+                            'class': 'fas fa-link',
+                        }),
+                    ],
+                });
+
+                $checkbox.parent().append($link);
+                new bootstrap.Tooltip($link[0]);
+            });
+        }
     }
 
     /**

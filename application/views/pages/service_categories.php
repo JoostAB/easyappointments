@@ -2,10 +2,10 @@
 
 <?php section('content'); ?>
 
-<div class="container backend-page" id="service-categories-page">
+<div class="container backend-page py-3" id="service-categories-page">
 
     <div class="row" id="service-categories">
-        <div id="filter-service-categories" class="filter-records column col-12">
+        <div id="filter-service-categories" class="filter-records column col-12 mb-4">
             <button id="add-service-category" class="btn btn-primary add-record-btn mb-4">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
@@ -22,16 +22,16 @@
                 </div>
             </form>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('service_categories') ?>
             </h4>
 
-            <div class="results">
+            <div class="results overflow-auto" style="max-height: 650px;">
                 <!-- JS -->
             </div>
         </div>
 
-        <div class="record-details col-12">
+        <div class="record-details col-12 mb-4">
             <div class="btn-toolbar mb-4">
                 <div class="add-edit-delete-group btn-group">
                     <button id="edit-service-category" class="btn btn-outline-secondary" disabled="disabled">
@@ -45,7 +45,7 @@
                         <i class="fas fa-check-square me-2"></i>
                         <?= lang('save') ?>
                     </button>
-                    <button id="cancel-service-category" class="btn btn-secondary">
+                    <button id="cancel-service-category" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
                     <button id="delete-service-category" class="btn btn-outline-danger ms-2">
@@ -56,7 +56,7 @@
 
             </div>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('details') ?>
             </h4>
 

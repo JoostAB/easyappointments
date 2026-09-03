@@ -59,7 +59,7 @@ class Ldap_settings extends EA_Controller
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
-            'ldap_settings' => $this->settings_model->get('name like "ldap_%"'),
+            'ldap_settings' => filter_sensitive_settings($this->settings_model->get('name like "ldap_%"')),
             'ldap_default_filter' => LDAP_DEFAULT_FILTER,
             'ldap_default_field_mapping' => LDAP_DEFAULT_FIELD_MAPPING,
         ]);
@@ -85,6 +85,8 @@ class Ldap_settings extends EA_Controller
             if (cannot('edit', PRIV_SYSTEM_SETTINGS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
+
+            check('ldap_settings', 'array|null');
 
             $settings = request('ldap_settings', []);
 
@@ -121,6 +123,8 @@ class Ldap_settings extends EA_Controller
             if (!extension_loaded('ldap')) {
                 throw new RuntimeException('The LDAP extension is not loaded.');
             }
+
+            check('keyword', 'string');
 
             $keyword = request('keyword');
 

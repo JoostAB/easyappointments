@@ -2,9 +2,9 @@
 
 <?php section('content'); ?>
 
-<div class="container backend-page" id="secretaries-page">
+<div class="container backend-page py-3" id="secretaries-page">
     <div class="row" id="secretaries">
-        <div id="filter-secretaries" class="filter-records column col-12">
+        <div id="filter-secretaries" class="filter-records column col-12 mb-4">
             <button id="add-secretary" class="btn btn-primary add-record-btn mb-4">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
@@ -21,16 +21,16 @@
                 </div>
             </form>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('secretaries') ?>
             </h4>
 
-            <div class="results">
+            <div class="results overflow-auto" style="max-height: 650px;">
                 <!-- JS -->
             </div>
         </div>
 
-        <div class="record-details column col-12">
+        <div class="record-details column col-12 mb-4">
             <div class="btn-toolbar mb-4">
                 <div class="add-edit-delete-group btn-group">
                     <button id="edit-secretary" class="btn btn-outline-secondary" disabled="disabled">
@@ -44,7 +44,7 @@
                         <i class="fas fa-check-square me-2"></i>
                         <?= lang('save') ?>
                     </button>
-                    <button id="cancel-secretary" class="btn btn-secondary">
+                    <button id="cancel-secretary" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
                     <button id="delete-secretary" class="btn btn-outline-danger ms-2">
@@ -55,7 +55,7 @@
 
             </div>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('details') ?>
             </h4>
 
@@ -198,7 +198,7 @@
                             <span class="text-danger" hidden>*</span>
                         </label>
                         <?php component('timezone_dropdown', [
-                            'attributes' => 'id="timezone" class="form-control required" disabled',
+                            'attributes' => 'id="timezone" class="form-select required" disabled',
                             'grouped_timezones' => vars('grouped_timezones'),
                         ]); ?>
                     </div>
@@ -227,13 +227,21 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="form-label mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="form-label mb-0">
                             <?= lang('providers') ?>
                         </label>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" id="select-all-providers" class="btn btn-outline-secondary" disabled>
+                                <?= lang('select_all') ?>
+                            </button>
+                            <button type="button" id="select-none-providers" class="btn btn-outline-secondary" disabled>
+                                <?= lang('select_none') ?>
+                            </button>
+                        </div>
                     </div>
 
-                    <div id="secretary-providers" class="card card-body bg-white border">
+                    <div id="secretary-providers" class="card card-body border">
                         <!-- JS -->
                     </div>
 

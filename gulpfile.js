@@ -54,7 +54,6 @@ function archive(done) {
     fs.copySync('storage/uploads/index.html', 'build/storage/uploads/index.html');
 
     fs.copySync('index.php', 'build/index.php');
-    fs.copySync('patch.php', 'build/patch.php');
     fs.copySync('composer.json', 'build/composer.json');
     fs.copySync('composer.lock', 'build/composer.lock');
     fs.copySync('config-sample.php', 'build/config-sample.php');
@@ -62,7 +61,9 @@ function archive(done) {
     fs.copySync('README.md', 'build/README.md');
     fs.copySync('LICENSE', 'build/LICENSE');
 
-    childProcess.execSync('cd build && composer install --no-interaction --no-dev --no-scripts --optimize-autoloader');
+    childProcess.execSync(
+        'cd build && composer install --no-interaction --no-dev --optimize-autoloader --ignore-platform-reqs',
+    );
 
     fs.removeSync('build/composer.lock');
     del.sync('**/.DS_Store');

@@ -10,6 +10,13 @@
  * @var array $timezone
  * @var string $reason
  */
+
+$customer_first_name = trim((string) ($customer['first_name'] ?? ''));
+$customer_last_name = trim((string) ($customer['last_name'] ?? ''));
+$customer_full_name = trim($customer_first_name . ' ' . $customer_last_name);
+$customer_email = trim((string) ($customer['email'] ?? ''));
+$customer_phone_number = trim((string) ($customer['phone_number'] ?? ''));
+$customer_address = trim((string) ($customer['address'] ?? ''));
 ?>
 
 <!doctype html>
@@ -133,14 +140,23 @@
             font-weight: 400;
             line-height: 1.4;
             margin: 0;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
         h1 {
-            font-size: 35px;
+            font-size: 24px;
             font-weight: 300;
             text-align: center;
-            text-transform: capitalize;
+            margin-bottom: 15px;
+        }
+        
+        .label {
+            width: 120px;
+        }
+
+        .details-table {
+            margin: 0 0 0 auto;
+            width: 85%;
         }
 
         p,
@@ -200,7 +216,6 @@
             margin: 0;
             padding: 12px 25px;
             text-decoration: none;
-            text-transform: capitalize;
         }
 
         .btn-primary table td {
@@ -388,19 +403,22 @@
                                 <tr>
                                     <td>
 
-                                        <h2>
-                                            <?= lang('appointment_cancelled_title') ?>
-                                        </h2>
+                                        <!-- Logo at the top center, embedded as CID -->
+                                        <img src="cid:logo.png" alt="Logo" style="display:block;max-width:67px;margin: auto auto 24px;">
 
-                                        <p>
+                                        <h1 style="text-align: center;">
+                                            <?= lang('appointment_cancelled_title') ?>
+                                        </h1>
+
+                                        <p style="text-align: center; margin-bottom: 40px">
                                             <?= lang('appointment_removed_from_schedule') ?>
                                         </p>
 
-                                        <h2>
+                                        <h2 style="text-align: center;">
                                             <?= lang('appointment_details_title') ?>
                                         </h2>
 
-                                        <table id="appointment-details">
+                                        <table id="appointment-details" class="details-table" align="center">
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
                                                     <?= lang('service') ?>
@@ -454,14 +472,17 @@
                                                 </tr>
                                             <?php endif; ?>
 
+
+                                            <?php if (!empty($appointment['status'])): ?>
                                             <tr>
                                                 <td class="label" style="padding: 3px;font-weight: bold;">
                                                     <?= lang('description') ?>
                                                 </td>
                                                 <td style="padding: 3px;">
-                                                    <?= e($service['description']) ?>
+                                                    <?= nl2br(e($service['description'])) ?>
                                                 </td>
                                             </tr>
+                                            <?php endif; ?>
 
                                             <?php if (!empty($appointment['location'])): ?>
                                                 <tr>
@@ -469,7 +490,30 @@
                                                         <?= lang('location') ?>
                                                     </td>
                                                     <td style="padding: 3px;">
+                                                        <?php if (str_starts_with($appointment['location'], 'http')): ?>
+                                                            <a 
+                                                                href="<?= e($appointment['location']) ?>" 
+                                                                target="_blank">
+                                                                <?= e($appointment['location']) ?>
+                                                            </a>
+                                                        <?php else: ?>
                                                         <?= e($appointment['location']) ?>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php if (!empty($appointment['meeting_link'])): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('meeting_link') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <a
+                                                            href="<?= e($appointment['meeting_link']) ?>"
+                                                            target="_blank">
+                                                            <?= e($appointment['meeting_link']) ?>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             <?php endif; ?>
@@ -488,52 +532,82 @@
 
                                         <br>
 
-                                        <h2>
+                                        <h2 style="text-align: center;">
                                             <?= lang('customer_details_title') ?>
                                         </h2>
 
-                                        <table id="customer-details">
-                                            <tr>
-                                                <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('name') ?>
-                                                </td>
-                                                <td style="padding: 3px;">
-                                                    <?= e($customer['first_name'] . ' ' . $customer['last_name']) ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('email') ?>
-                                                </td>
-                                                <td style="padding: 3px;">
-                                                    <?= e($customer['email']) ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('phone_number') ?>
-                                                </td>
-                                                <td style="padding: 3px;">
-                                                    <?= e($customer['phone_number']) ?>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="label" style="padding: 3px;font-weight: bold;">
-                                                    <?= lang('address') ?>
-                                                </td>
-                                                <td style="padding: 3px;">
-                                                    <?= e($customer['address']) ?>
-                                                </td>
-                                            </tr>
+                                        <table id="customer-details" class="details-table" align="center">
+                                            <?php if ($customer_full_name !== ''): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('name') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e($customer_full_name) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php if ($customer_email !== ''): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('email') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e($customer_email) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php if ($customer_phone_number !== ''): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('phone_number') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e($customer_phone_number) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php if ($customer_address !== ''): ?>
+                                                <tr>
+                                                    <td class="label" style="padding: 3px;font-weight: bold;">
+                                                        <?= lang('address') ?>
+                                                    </td>
+                                                    <td style="padding: 3px;">
+                                                        <?= e($customer_address) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <?php if (
+                                                    setting('display_custom_field_' . $i) &&
+                                                    !empty($customer['custom_field_' . $i])
+                                                ): ?>
+                                                    <tr>
+                                                        <td class="label" style="padding: 3px;font-weight: bold;">
+                                                            <?= e(
+                                                                setting('label_custom_field_' . $i) ?:
+                                                                lang('custom_field') . ' #' . $i,
+                                                            ) ?>
+                                                        </td>
+                                                        <td style="padding: 3px;">
+                                                            <?= e($customer['custom_field_' . $i]) ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            <?php endfor; ?>
                                         </table>
 
                                         <br>
 
-                                        <h2>
+                                        <h2 style="text-align: center;">
                                             <?= lang('reason') ?>
                                         </h2>
 
-                                        <p>
+                                        <p style="text-align: center;">
                                             <?= e($reason) ?>
                                         </p>
 
@@ -573,16 +647,6 @@
         <td>&nbsp;</td>
     </tr>
 </table>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

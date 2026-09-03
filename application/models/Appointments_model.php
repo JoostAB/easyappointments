@@ -38,6 +38,7 @@ class Appointments_model extends EA_Model
         'start' => 'start_datetime',
         'end' => 'end_datetime',
         'location' => 'location',
+        'meetingLink' => 'meeting_link',
         'color' => 'color',
         'status' => 'status',
         'notes' => 'notes',
@@ -504,6 +505,40 @@ class Appointments_model extends EA_Model
     }
 
     /**
+     * Get appointments as options for dropdowns.
+     *
+     * @param array|string|null $where Where conditions.
+     *
+     * @return array Returns an array of options with 'value' and 'label' keys.
+     */
+    public function to_options(array|string|null $where = null): array
+    {
+        if ($where !== null) {
+            $this->db->where($where);
+        }
+
+        $appointments = $this->db
+            ->select('appointments.id, appointments.start_datetime, services.name AS service_name')
+            ->from('appointments')
+            ->join('services', 'services.id = appointments.id_services', 'left')
+            ->where('is_unavailability', false)
+            ->order_by('start_datetime', 'DESC')
+            ->get()
+            ->result_array();
+
+        $options = [];
+
+        foreach ($appointments as $appointment) {
+            $options[] = [
+                'value' => (int) $appointment['id'],
+                'label' => $appointment['start_datetime'] . ' - ' . ($appointment['service_name'] ?? 'N/A'),
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
      * Load related resources to an appointment.
      *
      * @param array $appointment Associative array with the appointment data.
@@ -571,6 +606,7 @@ class Appointments_model extends EA_Model
             'customerId' => $appointment['id_users_customer'] !== null ? (int) $appointment['id_users_customer'] : null,
             'providerId' => $appointment['id_users_provider'] !== null ? (int) $appointment['id_users_provider'] : null,
             'serviceId' => $appointment['id_services'] !== null ? (int) $appointment['id_services'] : null,
+            'meetingLink' => $appointment['meeting_link'],
             'googleCalendarId' =>
                 $appointment['id_google_calendar'] !== null ? $appointment['id_google_calendar'] : null,
             'caldavCalendarId' =>
@@ -646,6 +682,10 @@ class Appointments_model extends EA_Model
             $decoded_resource['id_caldav_calendar'] = $appointment['caldavCalendarId'];
         }
 
+        if (array_key_exists('meetingLink', $appointment)) {
+            $decoded_resource['meeting_link'] = $appointment['meetingLink'];
+        }
+
         $decoded_resource['is_unavailability'] = false;
 
         $appointment = $decoded_resource;
@@ -669,5 +709,39 @@ class Appointments_model extends EA_Model
         $end_date_time_object->add(new DateInterval('PT' . $duration . 'M'));
 
         return $end_date_time_object->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Check if the provider has a conflicting appointment at the given time period.
+     *
+     * @param int $provider_id Provider ID.
+     * @param string $start_datetime Start date time of the appointment.
+     * @param string $end_datetime End date time of the appointment.
+     * @param int|null $exclude_appointment_id Exclude an appointment from the conflict check (useful for updates).
+     *
+     * @return bool Returns true if there is a conflict, false otherwise.
+     */
+    public function has_provider_conflict(
+        int $provider_id,
+        string $start_datetime,
+        string $end_datetime,
+        ?int $exclude_appointment_id = null,
+    ): bool {
+        $this->db->select('id')->from('appointments')->where('id_users_provider', $provider_id);
+
+        if ($exclude_appointment_id) {
+            $this->db->where('id !=', $exclude_appointment_id);
+        }
+
+        // Check for overlapping appointments:
+        // An overlap occurs when:  (existing_start < new_end) AND (existing_end > new_start)
+
+        return $this->db
+            ->group_start()
+            ->where('start_datetime <', $end_datetime)
+            ->where('end_datetime >', $start_datetime)
+            ->group_end()
+            ->get()
+            ->num_rows() > 0;
     }
 }

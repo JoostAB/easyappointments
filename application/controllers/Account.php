@@ -92,7 +92,7 @@ class Account extends EA_Controller
         $account = $this->users_model->find($user_id);
 
         script_vars([
-            'account' => $account,
+            'account' => filter_sensitive_user_data($account),
         ]);
 
         html_vars([
@@ -116,6 +116,8 @@ class Account extends EA_Controller
             if (cannot('edit', PRIV_USER_SETTINGS)) {
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
+
+            check('account', 'array');
 
             $account = request('account');
 
@@ -155,6 +157,9 @@ class Account extends EA_Controller
     {
         try {
             method('post');
+
+            check('username', 'string');
+            check('user_id', 'numeric|null');
 
             $username = request('username');
 

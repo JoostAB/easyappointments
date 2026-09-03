@@ -2,7 +2,7 @@
 
 <?php section('content'); ?>
 
-<div class="d-flex align-items-center justify-content-center min-vh-100">
+<div class="d-flex align-items-center justify-content-center min-vh-100-">
     <div class="text-center py-4 px-3">
         <div class="d-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mx-auto mb-4" style="width: 100px; height: 100px;">
             <i class="fas fa-calendar-check fa-3x text-success"></i>
@@ -24,12 +24,14 @@
                 <?= lang('go_to_booking_page') ?>
             </a>
 
+            <?php if (vars('display_add_to_google_calendar') === '1'): ?>
             <a href="<?= vars(
                 'add_to_google_url',
             ) ?>" id="add-to-google-calendar" class="btn btn-outline-primary px-4 py-2" target="_blank">
                 <i class="fab fa-google me-2"></i>
                 <?= lang('add_to_google_calendar') ?>
             </a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

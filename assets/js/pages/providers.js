@@ -90,6 +90,7 @@ App.Pages.Providers = (function () {
             $providers.find('.record-details .form-label span').prop('hidden', false);
             $('#password, #password-confirm').removeClass('required');
             $('#provider-services input:checkbox').prop('disabled', false);
+            $('#select-all-services, #select-none-services').prop('disabled', false);
             $providers
                 .find(
                     '.add-break, .edit-break, .delete-break, .add-working-plan-exception, .edit-working-plan-exception, .delete-working-plan-exception, #reset-working-plan',
@@ -119,6 +120,7 @@ App.Pages.Providers = (function () {
                 )
                 .prop('disabled', false);
             $('#provider-services input:checkbox').prop('disabled', false);
+            $('#select-all-services, #select-none-services').prop('disabled', false);
 
             // Apply default working plan
             const companyWorkingPlan = JSON.parse(vars('company_working_plan'));
@@ -139,6 +141,7 @@ App.Pages.Providers = (function () {
             $providers.find('.record-details .form-label span').prop('hidden', false);
             $('#password, #password-confirm').removeClass('required');
             $('#provider-services input:checkbox').prop('disabled', false);
+            $('#select-all-services, #select-none-services').prop('disabled', false);
             $providers
                 .find(
                     '.add-break, .edit-break, .delete-break, .add-working-plan-exception, .edit-working-plan-exception, .delete-working-plan-exception, #reset-working-plan',
@@ -177,6 +180,12 @@ App.Pages.Providers = (function () {
          * Event: Save Provider Button "Click"
          */
         $providers.on('click', '#save-provider', () => {
+            const workingPlan = workingPlanManager.get();
+
+            if (workingPlan === null) {
+                return;
+            }
+
             const provider = {
                 first_name: $firstName.val(),
                 last_name: $lastName.val(),
@@ -194,7 +203,7 @@ App.Pages.Providers = (function () {
                 ldap_dn: $ldapDn.val(),
                 settings: {
                     username: $username.val(),
-                    working_plan: JSON.stringify(workingPlanManager.get()),
+                    working_plan: JSON.stringify(workingPlan),
                     working_plan_exceptions: JSON.stringify(workingPlanManager.getWorkingPlanExceptions()),
                     notifications: Number($notifications.prop('checked')),
                     calendar_view: $calendarView.val(),
@@ -250,6 +259,20 @@ App.Pages.Providers = (function () {
             const companyWorkingPlan = JSON.parse(vars('company_working_plan'));
             workingPlanManager.setup(companyWorkingPlan);
             workingPlanManager.timepickers(false);
+        });
+
+        /**
+         * Event: Select All Services Button "Click"
+         */
+        $providers.on('click', '#select-all-services', () => {
+            $('#provider-services input:checkbox').prop('checked', true);
+        });
+
+        /**
+         * Event: Select None Services Button "Click"
+         */
+        $providers.on('click', '#select-none-services', () => {
+            $('#provider-services input:checkbox').prop('checked', false);
         });
     }
 
@@ -385,6 +408,7 @@ App.Pages.Providers = (function () {
 
         $('#edit-provider, #delete-provider').prop('disabled', true);
         $('#provider-services input:checkbox').prop('disabled', true).prop('checked', false);
+        $('#select-all-services, #select-none-services').prop('disabled', true);
         $('#provider-services a').remove();
         $('#providers .working-plan tbody').empty();
         $('#providers .breaks tbody').empty();
@@ -422,18 +446,18 @@ App.Pages.Providers = (function () {
         let $link = $('<a/>', {
             'href': dedicatedUrl,
             'target': '_blank',
+            'data-bs-toggle': 'tooltip',
+            'title': lang('booking_link'),
+            'aria-label': lang('booking_link'),
             'html': [
                 $('<i/>', {
-                    'class': 'fas fa-link me-2',
-                }),
-
-                $('<span/>', {
-                    'text': lang('booking_link'),
+                    'class': 'fas fa-link',
                 }),
             ],
         });
 
         $providers.find('.details-view h4').find('a').remove().end().append($link);
+        new bootstrap.Tooltip($link[0]);
 
         $('#provider-services a').remove();
         $('#provider-services input:checkbox').prop('checked', false);
@@ -455,18 +479,19 @@ App.Pages.Providers = (function () {
             $link = $('<a/>', {
                 'href': dedicatedUrl,
                 'target': '_blank',
+                'class': 'ms-2',
+                'data-bs-toggle': 'tooltip',
+                'title': lang('booking_link'),
+                'aria-label': lang('booking_link'),
                 'html': [
                     $('<i/>', {
-                        'class': 'fas fa-link me-2',
-                    }),
-
-                    $('<span/>', {
-                        'text': lang('booking_link'),
+                        'class': 'fas fa-link',
                     }),
                 ],
             });
 
             $checkbox.parent().append($link);
+            new bootstrap.Tooltip($link[0]);
         });
 
         // Display working plan

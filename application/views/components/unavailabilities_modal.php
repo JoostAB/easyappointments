@@ -8,7 +8,7 @@
 ?>
 
 <div id="unavailabilities-modal" class="modal fade">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-lg-down">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title"><?= lang('new_unavailability_title') ?></h3>
@@ -82,7 +82,7 @@
             </div>
             <div class="modal-footer">
 
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <?= lang('cancel') ?>
                 </button>
                 <button id="save-unavailability" class="btn btn-primary">

@@ -16,7 +16,7 @@
  */
 ?>
 <div id="appointments-modal" class="modal fade">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-lg-down modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title"><?= lang('edit_appointment_title') ?></h3>
@@ -28,7 +28,7 @@
 
                 <form>
                     <fieldset>
-                        <h5 class="text-black-50 mb-3 fw-light"><?= lang('appointment_details_title') ?></h5>
+                        <h5 class="mb-3 fw-light"><?= lang('appointment_details_title') ?></h5>
 
                         <input id="appointment-id" type="hidden">
 
@@ -128,6 +128,13 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label for="appointment-meeting-link" class="form-label">
+                                        <?= lang('meeting_link') ?>
+                                    </label>
+                                    <input id="appointment-meeting-link" class="form-control" placeholder="https://">
+                                </div>
+
+                                <div class="mb-3">
                                     <label for="appointment-status" class="form-label">
                                         <?= lang('status') ?>
                                     </label>
@@ -198,7 +205,7 @@
                     <br>
 
                     <fieldset>
-                        <h5 class="text-black-50 mb-3 fw-light">
+                        <h5 class="mb-3 fw-light">
                             <?= lang('customer_details_title') ?>
                             <button id="new-customer" class="btn btn-outline-secondary btn-sm" type="button"
                                     data-tippy-content="<?= lang('clear_fields_add_existing_customer_hint') ?>">
@@ -331,7 +338,7 @@
                                         <span class="text-danger" hidden>*</span>
                                     </label>
                                     <?php component('timezone_dropdown', [
-                                        'attributes' => 'id="timezone" class="form-control required"',
+                                        'attributes' => 'id="timezone" class="form-select required"',
                                         'grouped_timezones' => vars('grouped_timezones'),
                                     ]); ?>
                                 </div>
@@ -340,7 +347,7 @@
                                     <label for="customer-notes" class="form-label">
                                         <?= lang('notes') ?>
                                     </label>
-                                    <textarea id="customer-notes" rows="2" class="form-control"></textarea>
+                                    <textarea id="customer-notes" rows="3" class="form-control"></textarea>
                                 </div>
 
                             </div>
@@ -352,7 +359,7 @@
 
             <div class="modal-footer">
 
-                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
                     <?= lang('cancel') ?>
                 </button>
                 <button id="save-appointment" class="btn btn-primary">

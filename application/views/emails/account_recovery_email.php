@@ -136,7 +136,6 @@
             font-size: 35px;
             font-weight: 300;
             text-align: center;
-            text-transform: capitalize;
         }
 
         p,
@@ -157,7 +156,7 @@
         }
 
         a {
-            color: #3498db;
+            color: #429A82;
             text-decoration: underline;
         }
 
@@ -185,10 +184,10 @@
 
         .btn a {
             background-color: #ffffff;
-            border: solid 1px #3498db;
+            border: solid 1px #429A82;
             border-radius: 5px;
             box-sizing: border-box;
-            color: #3498db;
+            color: #429A82;
             cursor: pointer;
             display: inline-block;
             font-size: 14px;
@@ -196,16 +195,15 @@
             margin: 0;
             padding: 12px 25px;
             text-decoration: none;
-            text-transform: capitalize;
         }
 
         .btn-primary table td {
-            background-color: #3498db;
+            background-color: #429A82;
         }
 
         .btn-primary a {
-            background-color: #3498db;
-            border-color: #3498db;
+            background-color: #429A82;
+            border-color: #429A82;
             color: #ffffff;
         }
 
@@ -384,6 +382,9 @@
                                 <tr>
                                     <td>
 
+                                        <!-- Logo at the top center, embedded as CID -->
+                                        <img src="cid:logo.png" alt="Logo" style="display:block;max-width:80px;margin: auto auto 24px;">
+
                                         <h2>
                                             <?= $subject ?>
                                         </h2>
@@ -429,14 +430,3 @@
 </table>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

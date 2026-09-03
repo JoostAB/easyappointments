@@ -2,9 +2,9 @@
 
 <?php section('content'); ?>
 
-<div class="container backend-page" id="services-page">
+<div class="container backend-page py-3" id="services-page">
     <div class="row" id="services">
-        <div id="filter-services" class="filter-records col col-12">
+        <div id="filter-services" class="filter-records col col-12 mb-4">
             <button id="add-service" class="btn btn-primary add-record-btn mb-4">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
@@ -21,16 +21,16 @@
                 </div>
             </form>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('services') ?>
             </h4>
 
-            <div class="results">
+            <div class="results overflow-auto" style="max-height: 650px;">
                 <!-- JS -->
             </div>
         </div>
 
-        <div class="record-details column col-12">
+        <div class="record-details column col-12 mb-4">
             <div class="btn-toolbar mb-4">
                 <div class="add-edit-delete-group btn-group">
                     <button id="edit-service" class="btn btn-outline-secondary" disabled="disabled">
@@ -44,7 +44,7 @@
                         <i class="fas fa-check-square me-2"></i>
                         <?= lang('save') ?>
                     </button>
-                    <button id="cancel-service" class="btn btn-secondary">
+                    <button id="cancel-service" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
                     <button id="delete-service" class="btn btn-outline-danger ms-2">
@@ -55,7 +55,7 @@
 
             </div>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('details') ?>
             </h4>
 
@@ -104,18 +104,11 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="availabilities-type">
-                    <?= lang('availabilities_type') ?>
-
+                <label class="form-label" for="slot-interval">
+                    <?= lang('slot_interval') ?>
+                    <span class="text-danger" hidden>*</span>
                 </label>
-                <select id="availabilities-type" class="form-select" disabled>
-                    <option value="<?= AVAILABILITIES_TYPE_FLEXIBLE ?>">
-                        <?= lang('flexible') ?>
-                    </option>
-                    <option value="<?= AVAILABILITIES_TYPE_FIXED ?>">
-                        <?= lang('fixed') ?>
-                    </option>
-                </select>
+                <input id="slot-interval" class="form-control required" type="number" min="1" disabled>
             </div>
 
             <div class="mb-3">
@@ -164,6 +157,33 @@
                     <?= lang('description') ?>
                 </label>
                 <textarea id="description" rows="4" class="form-control" disabled></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="form-label mb-0">
+                    <?= lang('providers') ?>
+                </label>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" id="select-all-providers" class="btn btn-outline-secondary" disabled>
+                        <?= lang('select_all') ?>
+                    </button>
+                    <button type="button" id="select-none-providers" class="btn btn-outline-secondary" disabled>
+                        <?= lang('select_none') ?>
+                    </button>
+                </div>
+            </div>
+
+            <div id="service-providers" class="card card-body border mb-3">
+                <?php foreach (vars('providers') as $provider): ?>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="provider-<?= $provider['id'] ?>"
+                               data-id="<?= $provider['id'] ?>" disabled>
+                        <label class="form-check-label" for="provider-<?= $provider['id'] ?>">
+                            <?= e($provider['first_name'] . ' ' . $provider['last_name']) ?>
+                        </label>
+                    </div>
+                <?php endforeach; ?>
             </div>
 
         </div>

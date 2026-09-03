@@ -58,7 +58,7 @@ class Legal_settings extends EA_Controller
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
-            'legal_settings' => $this->settings_model->get(),
+            'legal_settings' => filter_sensitive_settings($this->settings_model->get()),
         ]);
 
         html_vars([
@@ -82,6 +82,14 @@ class Legal_settings extends EA_Controller
                 throw new RuntimeException('You do not have the required permissions for this task.');
             }
 
+            check('legal_settings', 'array|null');
+
+            $legal_content_settings = [
+                'cookie_notice_content',
+                'terms_and_conditions_content',
+                'privacy_policy_content',
+            ];
+
             $settings = request('legal_settings', []);
 
             foreach ($settings as $setting) {
@@ -89,6 +97,13 @@ class Legal_settings extends EA_Controller
 
                 if (!empty($existing_setting)) {
                     $setting['id'] = $existing_setting['id'];
+                }
+
+                if (
+                    !empty($setting['name']) &&
+                    in_array($setting['name'], $legal_content_settings, true)
+                ) {
+                    $setting['value'] = pure_html($setting['value'] ?? '');
                 }
 
                 $this->settings_model->save($setting);

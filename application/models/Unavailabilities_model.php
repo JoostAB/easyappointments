@@ -342,6 +342,43 @@ class Unavailabilities_model extends EA_Model
     }
 
     /**
+     * Get unavailabilities as options for dropdowns.
+     *
+     * @param array|string|null $where Where conditions.
+     *
+     * @return array Returns an array of options with 'value' and 'label' keys.
+     */
+    public function to_options(array|string|null $where = null): array
+    {
+        if ($where !== null) {
+            $this->db->where($where);
+        }
+
+        $unavailabilities = $this->db
+            ->select('appointments.id, appointments.start_datetime, appointments.notes')
+            ->from('appointments')
+            ->where('is_unavailability', true)
+            ->order_by('start_datetime', 'DESC')
+            ->get()
+            ->result_array();
+
+        $options = [];
+
+        foreach ($unavailabilities as $unavailability) {
+            $label = $unavailability['start_datetime'];
+            if (!empty($unavailability['notes'])) {
+                $label .= ' - ' . substr($unavailability['notes'], 0, 30);
+            }
+            $options[] = [
+                'value' => (int) $unavailability['id'],
+                'label' => $label,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
      * Load related resources to an unavailability.
      *
      * @param array $unavailability Associative array with the unavailability data.
@@ -388,6 +425,8 @@ class Unavailabilities_model extends EA_Model
                 $unavailability['id_users_provider'] !== null ? (int) $unavailability['id_users_provider'] : null,
             'googleCalendarId' =>
                 $unavailability['id_google_calendar'] !== null ? (int) $unavailability['id_google_calendar'] : null,
+            'caldavCalendarId' =>
+                $unavailability['id_caldav_calendar'] !== null ? $unavailability['id_caldav_calendar'] : null,
         ];
 
         $unavailability = $encoded_resource;
@@ -437,6 +476,10 @@ class Unavailabilities_model extends EA_Model
 
         if (array_key_exists('googleCalendarId', $unavailability)) {
             $decoded_resource['id_google_calendar'] = $unavailability['googleCalendarId'];
+        }
+
+        if (array_key_exists('caldavCalendarId', $unavailability)) {
+            $decoded_resource['id_caldav_calendar'] = $unavailability['caldavCalendarId'];
         }
 
         $decoded_resource['is_unavailability'] = true;

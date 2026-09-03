@@ -2,9 +2,9 @@
 
 <?php section('content'); ?>
 
-<div class="container backend-page" id="providers-page">
+<div class="container backend-page py-3" id="providers-page">
     <div class="row" id="providers">
-        <div id="filter-providers" class="filter-records column col-12">
+        <div id="filter-providers" class="filter-records column col-12 mb-4">
             <button id="add-provider" class="btn btn-primary add-record-btn mb-4">
                 <i class="fas fa-plus-square me-2"></i>
                 <?= lang('add') ?>
@@ -21,16 +21,16 @@
                 </div>
             </form>
 
-            <h4 class="text-black-50 mb-3 fw-light">
+            <h4 class="mb-3 fw-light">
                 <?= lang('providers') ?>
             </h4>
 
-            <div class="results">
+            <div class="results overflow-auto" style="max-height: 650px;">
                 <!-- JS -->
             </div>
         </div>
 
-        <div class="record-details column col-12">
+        <div class="record-details column col-12 mb-4">
             <div class="float-md-start mb-4 me-4">
                 <div class="add-edit-delete-group btn-group">
                     <button id="edit-provider" class="btn btn-outline-secondary" disabled="disabled">
@@ -44,7 +44,7 @@
                         <i class="fas fa-check-square me-2"></i>
                         <?= lang('save') ?>
                     </button>
-                    <button id="cancel-provider" class="btn btn-secondary">
+                    <button id="cancel-provider" class="btn btn-outline-secondary">
                         <?= lang('cancel') ?>
                     </button>
                     <button id="delete-provider" class="btn btn-outline-danger ms-2">
@@ -73,11 +73,11 @@
 // visible when the user has working plan view active.
 ?>
 
-            <div class="form-message alert" style="display:none;"></div>
+            <div class="form-message alert mt-4" style="display:none;"></div>
 
             <div class="tab-content">
                 <div class="details-view tab-pane fade show active clearfix" id="details">
-                    <h4 class="text-black-50 mb-3 fw-light">
+                    <h4 class="mb-3 fw-light">
                         <?= lang('details') ?>
                     </h4>
 
@@ -221,7 +221,7 @@
                                     <span class="text-danger" hidden>*</span>
                                 </label>
                                 <?php component('timezone_dropdown', [
-                                    'attributes' => 'id="timezone" class="form-control required" disabled',
+                                    'attributes' => 'id="timezone" class="form-select required" disabled',
                                     'grouped_timezones' => vars('grouped_timezones'),
                                 ]); ?>
                             </div>
@@ -263,13 +263,21 @@
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="form-label mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <label class="form-label mb-0">
                                     <?= lang('services') ?>
                                 </label>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" id="select-all-services" class="btn btn-outline-secondary" disabled>
+                                        <?= lang('select_all') ?>
+                                    </button>
+                                    <button type="button" id="select-none-services" class="btn btn-outline-secondary" disabled>
+                                        <?= lang('select_none') ?>
+                                    </button>
+                                </div>
                             </div>
 
-                            <div id="provider-services" class="card card-body bg-white border">
+                            <div id="provider-services" class="card card-body border">
                                 <!-- JS -->
                             </div>
 
@@ -278,7 +286,7 @@
                 </div>
 
                 <div class="working-plan-view tab-pane fade clearfix" id="working-plan">
-                    <h4 class="text-black-50 mb-3 fw-light">
+                    <h4 class="mb-3 fw-light">
                         <?= lang('working_plan') ?>
                     </h4>
 
@@ -286,20 +294,22 @@
                             data-tippy-content="<?= lang('reset_working_plan') ?>">
                         <i class="fas fa-undo-alt me-2"></i>
                         <?= lang('reset_plan') ?></button>
-                    <table class="working-plan table table-striped mt-2">
-                        <thead>
-                        <tr>
-                            <th><?= lang('day') ?></th>
-                            <th><?= lang('start') ?></th>
-                            <th><?= lang('end') ?></th>
-                        </tr>
-                        </thead>
-                        <tbody><!-- Dynamic Content --></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="working-plan table table-striped mt-2">
+                            <thead>
+                            <tr>
+                                <th><?= lang('day') ?></th>
+                                <th><?= lang('start') ?></th>
+                                <th><?= lang('end') ?></th>
+                            </tr>
+                            </thead>
+                            <tbody><!-- Dynamic Content --></tbody>
+                        </table>
+                    </div>
 
                     <br>
 
-                    <h4 class="text-black-50 mb-3 fw-light">
+                    <h4 class="mb-3 fw-light">
                         <?= lang('breaks') ?>
                     </h4>
 
@@ -316,21 +326,23 @@
 
                     <br>
 
-                    <table class="breaks table table-striped">
-                        <thead>
-                        <tr>
-                            <th><?= lang('day') ?></th>
-                            <th><?= lang('start') ?></th>
-                            <th><?= lang('end') ?></th>
-                            <th><?= lang('actions') ?></th>
-                        </tr>
-                        </thead>
-                        <tbody><!-- Dynamic Content --></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="breaks table table-striped">
+                            <thead>
+                            <tr>
+                                <th><?= lang('day') ?></th>
+                                <th><?= lang('start') ?></th>
+                                <th><?= lang('end') ?></th>
+                                <th><?= lang('actions') ?></th>
+                            </tr>
+                            </thead>
+                            <tbody><!-- Dynamic Content --></tbody>
+                        </table>
+                    </div>
 
                     <br>
 
-                    <h4 class="text-black-50 mb-3 fw-light">
+                    <h4 class="mb-3 fw-light">
                         <?= lang('working_plan_exceptions') ?>
                     </h4>
 
@@ -347,17 +359,19 @@
 
                     <br>
 
-                    <table class="working-plan-exceptions table table-striped">
-                        <thead>
-                        <tr>
-                            <th><?= lang('day') ?></th>
-                            <th><?= lang('start') ?></th>
-                            <th><?= lang('end') ?></th>
-                            <th><?= lang('actions') ?></th>
-                        </tr>
-                        </thead>
-                        <tbody><!-- Dynamic Content --></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="working-plan-exceptions table table-striped">
+                            <thead>
+                            <tr>
+                                <th><?= lang('date') ?></th>
+                                <th><?= lang('start') ?></th>
+                                <th><?= lang('end') ?></th>
+                                <th><?= lang('actions') ?></th>
+                            </tr>
+                            </thead>
+                            <tbody><!-- Dynamic Content --></tbody>
+                        </table>
+                    </div>
 
                     <?php component('working_plan_exceptions_modal'); ?>
 
