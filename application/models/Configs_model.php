@@ -24,6 +24,7 @@ class Configs_model extends EA_Model
      */
     protected array $casts = [
         'id' => 'integer',
+        'flags' => 'integer',
     ];
 
     /**

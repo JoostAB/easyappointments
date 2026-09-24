@@ -47,6 +47,10 @@ class Migration_Add_Configs_Table extends EA_Migration
                     'constraint' => '512',
                     'null' => true,
                 ],
+                'flags' => [
+                    'type' => 'INT',
+                    'null' => true,
+                ],
             ]);
 
             $this->dbforge->add_key('id', true);

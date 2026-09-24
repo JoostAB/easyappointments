@@ -20,6 +20,8 @@
  */
 class Configuration_settings extends EA_Controller
 {
+    public const FLAG_SECRET = 1;
+
     /**
      * Summary of __construct
      */
@@ -60,11 +62,13 @@ class Configuration_settings extends EA_Controller
         }, $available_theme_files);
 
         $cfs = $this->configs_model->get();
+
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
             'timezones' => $this->timezones->to_array(),
-            'config_settings' => $this->configs_model->get(),
+            //'config_settings' => $this->configs_model->get(),
+            'config_settings' => $cfs,
         ]);
 
         html_vars([
@@ -130,4 +134,6 @@ class Configuration_settings extends EA_Controller
             json_exception($e);
         }
     }
+
+    
 }
