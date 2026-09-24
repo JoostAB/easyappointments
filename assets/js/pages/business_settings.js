@@ -17,7 +17,6 @@
 App.Pages.BusinessSettings = (function () {
     const $saveSettings = $('#save-settings');
     const $applyGlobalWorkingPlan = $('#apply-global-working-plan');
-    const $appointmentStatusOptions = $('#appointment-status-options');
     let workingPlanManager = null;
 
     /**
@@ -143,16 +142,12 @@ App.Pages.BusinessSettings = (function () {
         deserialize(businessSettings);
 
         let companyWorkingPlan = {};
-        let appointmentStatusOptions = [];
 
         vars('business_settings').forEach((businessSetting) => {
             if (businessSetting.name === 'company_working_plan') {
                 companyWorkingPlan = JSON.parse(businessSetting.value);
             }
 
-            if (businessSetting.name === 'appointment_status_options') {
-                appointmentStatusOptions = JSON.parse(businessSetting.value);
-            }
         });
 
         workingPlanManager = new App.Utils.WorkingPlan();
