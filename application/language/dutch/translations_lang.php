@@ -502,4 +502,8 @@ $lang['value'] = 'Waarde';
 $lang['date_seperator'] = 'Datum scheidingsteken';
 $lang['date_seperator_hint'] = 'Het teken dat tussen de dag, maand en jaar wordt getoond.';
 $lang['settings_are_invalid'] = 'Ongeldige waarde voor instelling';
+$lang['occupied'] = 'Bezet';
+$lang['show_cancelled'] = 'Toon geannuleerd';
+$lang['hide_cancelled'] = 'Verberg geannuleerd';
+
 // End

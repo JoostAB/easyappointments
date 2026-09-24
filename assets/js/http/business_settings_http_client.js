@@ -22,17 +22,34 @@ App.Http.BusinessSettings = (function () {
      *
      * @return {Object}
      */
-    function save(businessSettings) {
+    function save(businessSettings, bookingStatusses = null, deletedStatusses = null) {
         const url = App.Utils.Url.siteUrl('business_settings/save');
 
-        const data = {
+        let data = {
             csrf_token: vars('csrf_token'),
             business_settings: businessSettings,
         };
 
+        if (bookingStatusses) {
+            data.booking_statusses = bookingStatusses;
+        }
+
+        if (deletedStatusses) {
+            data.deleted_statusses = deletedStatusses;
+        }
         return $.post(url, data);
     }
 
+    function saveBookingStatusses(bookingStatusses) {
+        const url = App.Utils.Url.siteUrl('business_settings/save_booking_statusses');
+
+        const data = {
+            csrf_token: vars('csrf_token'),
+            booking_statusses: bookingStatusses,
+        };
+
+        return $.post(url, data);
+    }
     /**
      * Apply global working plan.
      *
@@ -51,8 +68,18 @@ App.Http.BusinessSettings = (function () {
         return $.post(url, data);
     }
 
+    function getBookingStatusses() {
+        const url = App.Utils.Url.siteUrl('business_settings/get_booking_statusses');
+        const data = {
+            csrf_token: vars('csrf_token'),
+        };
+        return $.post(url, data);
+    }
+
     return {
         save,
         applyGlobalWorkingPlan,
+        getBookingStatusses,
+        saveBookingStatusses,
     };
 })();

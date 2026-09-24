@@ -56,6 +56,25 @@ App.Http.Calendar = (function () {
     }
 
     /**
+     * Cancel an appointment
+     * 
+     * @param {Number} appointmentId 
+     * @param {String} cancellationReason 
+     * @returns {*|jQuery}
+     */
+    function cancelAppointment(appointmentId, cancellationReason) {
+        const url = App.Utils.Url.siteUrl('calendar/cancel_appointment');
+
+        const data = {
+            csrf_token: vars('csrf_token'),
+            appointment_id: appointmentId,
+            cancellation_reason: cancellationReason,
+        };
+
+        return $.post(url, data);
+    }
+
+    /**
      * Remove an appointment.
      *
      * @param {Number} appointmentId
@@ -208,7 +227,7 @@ App.Http.Calendar = (function () {
      *
      * @returns {jQuery.jqXHR}
      */
-    function getCalendarAppointments(recordId, startDate, endDate, filterType) {
+    function getCalendarAppointments(recordId, startDate, endDate, filterType, onlyBusy = false) {
         const url = App.Utils.Url.siteUrl('calendar/get_calendar_appointments');
 
         const data = {
@@ -216,6 +235,7 @@ App.Http.Calendar = (function () {
             record_id: recordId,
             start_date: moment(startDate).format('YYYY-MM-DD'),
             end_date: moment(endDate).format('YYYY-MM-DD'),
+            only_busy: onlyBusy,
             filter_type: filterType,
         };
 
@@ -244,6 +264,7 @@ App.Http.Calendar = (function () {
 
     return {
         saveAppointment,
+        cancelAppointment,
         deleteAppointment,
         saveUnavailability,
         deleteUnavailability,

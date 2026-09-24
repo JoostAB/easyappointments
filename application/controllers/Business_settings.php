@@ -21,6 +21,7 @@
 class Business_settings extends EA_Controller
 {
     public array $allowed_setting_fields = ['id', 'name', 'value'];
+    public array $allowed_status_fields = ['id', 'name', 'description', 'is_busy'];
 
     public array $optional_setting_fields = [
         //
@@ -39,6 +40,7 @@ class Business_settings extends EA_Controller
         $this->load->model('providers_model');
         $this->load->model('roles_model');
         $this->load->model('settings_model');
+        $this->load->model('booking_statusses_model');
 
         $this->load->library('accounts');
         $this->load->library('google_sync');
@@ -85,6 +87,38 @@ class Business_settings extends EA_Controller
         $this->load->view('pages/business_settings');
     }
 
+    public function save_booking_statusses(): void
+    {
+        try {
+            if (cannot('edit', PRIV_SYSTEM_SETTINGS)) {
+                throw new RuntimeException('You do not have the required permissions for this task.');
+            }
+
+            $statusses = request('booking_statusses', []);
+
+            foreach($statusses as $status) {
+                $existing_status = $this->booking_statusses_model
+                    ->query()
+                    ->where( 'name', $status['name'] )
+                    ->get()
+                    ->row_array();
+                
+                if (! empty($existing_status)) {
+                    $status['id'] = $existing_status['id'];
+                }
+
+                $this->booking_statusses_model->only( $status, $this->allowed_status_fields );
+                
+                $this->booking_statusses_model->save( $status);
+            }
+
+            response();
+
+        } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
+
     /**
      * Save general settings.
      */
@@ -96,23 +130,46 @@ class Business_settings extends EA_Controller
             }
 
             $settings = request('business_settings', []);
-
+            
             foreach ($settings as $setting) {
                 $existing_setting = $this->settings_model
                     ->query()
-                    ->where('name', $setting['name'])
+                    ->where( 'name', $setting['name'] )
                     ->get()
                     ->row_array();
 
-                if (!empty($existing_setting)) {
+                if ( ! empty( $existing_setting ) ) {
                     $setting['id'] = $existing_setting['id'];
                 }
 
-                $this->settings_model->only($setting, $this->allowed_setting_fields);
+                $this->settings_model->only( $setting, $this->allowed_setting_fields );
 
-                $this->settings_model->optional($setting, $this->optional_setting_fields);
+                $this->settings_model->optional( $setting, $this->optional_setting_fields );
 
-                $this->settings_model->save($setting);
+                $this->settings_model->save( $setting );
+            }
+
+            $statusses = request('booking_statusses', []);
+
+            foreach($statusses as $status) {
+                $existing_status = $this->booking_statusses_model
+                    ->query()
+                    ->where( 'name', $status['name'] )
+                    ->get()
+                    ->row_array();
+                
+                if (! empty($existing_status)) {
+                    $status['id'] = $existing_status['id'];
+                }
+
+                $this->booking_statusses_model->only( $status, $this->allowed_status_fields );
+                
+                $this->booking_statusses_model->save( $status);
+            }
+
+            $deleted = request('deleted_statusses', []);
+            foreach($deleted as $del) {
+				$this->booking_statusses_model->delete( $del );
             }
 
             response();
@@ -141,6 +198,19 @@ class Business_settings extends EA_Controller
 
             response();
         } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
+
+    public function get_booking_statusses(): void {
+		try {
+            if (cannot('view', PRIV_SYSTEM_SETTINGS)) {
+                throw new RuntimeException('You do not have the required permissions for this task.');
+            }
+			$statusses = $this->booking_statusses_model->get();
+
+			json_response( $statusses );
+		} catch (Throwable $e) {
             json_exception($e);
         }
     }

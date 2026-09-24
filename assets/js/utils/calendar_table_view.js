@@ -278,7 +278,7 @@ App.Utils.CalendarTableView = (function () {
          * Displays a prompt on whether the user wants the appointment to be deleted. If he confirms the
          * deletion then an ajax call is made to the server and deletes the appointment from the database.
          */
-        $calendar.on('click', '.delete-popover', (event) => {
+        $calendar.on('click', '.cancel-popover', (event) => {
             if ($popoverTarget) {
                 $popoverTarget.popover('dispose');
             }
@@ -309,19 +309,19 @@ App.Utils.CalendarTableView = (function () {
             } else if (!lastFocusedEventData.extendedProps.data.is_unavailability) {
                 const buttons = [
                     {
-                        text: lang('cancel'),
+                        text: lang('close'),
                         click: (event, messageModal) => {
                             messageModal.hide();
                         },
                     },
                     {
-                        text: lang('delete'),
+                        text: lang('cancel'),
                         click: (event, messageModal) => {
                             const appointmentId = lastFocusedEventData.extendedProps.data.id;
 
                             const cancellationReason = $('#cancellation-reason').val();
 
-                            App.Http.Calendar.deleteAppointment(appointmentId, cancellationReason).done(() => {
+                            App.Http.Calendar.cancelAppointment(appointmentId, cancellationReason).done(() => {
                                 messageModal.hide();
 
                                 // Refresh calendar event items.
@@ -332,7 +332,7 @@ App.Utils.CalendarTableView = (function () {
                 ];
 
                 App.Utils.Message.show(
-                    lang('delete_appointment_title'),
+                    lang('cancel_appointment_title'),
                     lang('write_appointment_removal_reason'),
                     buttons,
                 );
@@ -1189,16 +1189,16 @@ App.Utils.CalendarTableView = (function () {
                                 ],
                             }),
                             $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary me-2 ' + displayDelete,
+                                'class': 'cancel-popover btn btn-outline-secondary me-2 ' + displayDelete,
                                 'html': [
                                     $('<i/>', {
                                         'class': 'fas fa-trash-alt me-2',
                                     }),
                                     $('<span/>', {
-                                        'text': lang('delete'),
+                                        'text': lang('cancel'),
                                     }),
                                 ],
-                            }),
+                            }).prop('disabled',$target.hasClass('calevent-notbusy')),,
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
                                 'html': [
@@ -1296,7 +1296,7 @@ App.Utils.CalendarTableView = (function () {
                                 ],
                             }),
                             $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary me-2 ' + displayDelete,
+                                'class': 'cancel-popover btn btn-outline-secondary me-2 ' + displayDelete,
                                 'html': [
                                     $('<i/>', {
                                         'class': 'fas fa-trash-alt me-2',
@@ -1305,7 +1305,7 @@ App.Utils.CalendarTableView = (function () {
                                         'text': lang('delete'),
                                     }),
                                 ],
-                            }),
+                            }).prop('disabled',$target.hasClass('calevent-notbusy')),,
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
                                 'html': [
@@ -1463,16 +1463,16 @@ App.Utils.CalendarTableView = (function () {
                                 ],
                             }),
                             $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary me-2 ' + displayDelete,
+                                'class': 'cancel-popover btn btn-outline-secondary me-2 ' + displayDelete,
                                 'html': [
                                     $('<i/>', {
                                         'class': 'fas fa-trash-alt me-2',
                                     }),
                                     $('<span/>', {
-                                        'text': lang('delete'),
+                                        'text': lang('cancel'),
                                     }),
                                 ],
-                            }),
+                            }).prop('disabled',$target.hasClass('calevent-notbusy')),
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
                                 'html': [

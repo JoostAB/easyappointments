@@ -58,6 +58,7 @@ class Calendar extends EA_Controller
         'id_services',
         'ids_subservices',
         'total_price',
+        'id_booking_statusses',
     ];
 
     public array $optional_appointment_fields = [
@@ -79,6 +80,7 @@ class Calendar extends EA_Controller
         $this->load->model('subservices_model');
         $this->load->model('providers_model');
         $this->load->model('roles_model');
+        $this->load->model('booking_statusses_model');
 
         $this->load->library('accounts');
         $this->load->library('google_sync');
@@ -179,6 +181,8 @@ class Calendar extends EA_Controller
 
         $appointment_status_options = setting('appointment_status_options');
 
+		$booking_statusses = $this->booking_statusses_model->get();
+
         script_vars([
             'user_id' => $user_id,
             'role_slug' => $role_slug,
@@ -199,6 +203,7 @@ class Calendar extends EA_Controller
             'default_language' => setting('default_language'),
             'default_timezone' => setting('default_timezone'),
             'date_seperator' => setting('date_seperator'),
+            'booking_statusses' => $booking_statusses,
         ]);
 
         html_vars([
@@ -406,6 +411,85 @@ class Calendar extends EA_Controller
             $this->synchronization->sync_appointment_deleted($appointment, $provider);
 
             $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_DELETE, $appointment);
+
+            json_response([
+                'success' => true,
+            ]);
+        } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
+
+    /**
+     * Cancel appointment.
+     *
+     * This method cancels an existing appointment by changing its status.
+     * Notification emails are send to both provider and customer and the delete action is executed to the Google
+     * Calendar account of the provider, if the "google_sync" setting is enabled.
+     */
+    public function cancel_appointment(): void
+    {
+        try {
+            if (cannot('edit', 'appointments')) {
+                throw new RuntimeException('You do not have the required permissions for this task.');
+            }
+
+            $appointment_id = request('appointment_id');
+            $manage_mode = !empty($appointment_id);
+            $cancellation_reason = (string) request('cancellation_reason');
+
+            if (empty($appointment_id)) {
+                throw new InvalidArgumentException('No appointment id provided.');
+            }
+
+            // Store appointment data for later use in this method.
+            $appointment = $this->appointments_model->find($appointment_id);
+
+            $this->check_event_permissions((int) $appointment['id_users_provider']);
+
+            $provider = $this->providers_model->find($appointment['id_users_provider']);
+            $customer = $this->customers_model->find($appointment['id_users_customer']);
+            $service = $this->services_model->find($appointment['id_services']);
+
+            $company_color = setting('company_color');
+
+            $settings = [
+                'company_name' => setting('company_name'),
+                'company_email' => setting('company_email'),
+                'company_link' => setting('company_link'),
+                'company_color' =>
+                    !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
+                'date_format' => setting('date_format'),
+                'time_format' => setting('time_format'),
+            ];
+
+            // Update appointment record on the database.
+            // $status = $this->booking_statusses_model->find( 2 );
+            $appointment['id_booking_statusses'] = 2;
+            // $appointment['status'] = $status['name'];
+            $this->appointments_model->save( $appointment );
+
+            $this->notifications->notify_appointment_deleted(
+                $appointment,
+                $service,
+                $provider,
+                $customer,
+                $settings,
+                $cancellation_reason,
+            );
+
+            $this->synchronization->sync_appointment_saved($appointment, $service, $provider, $customer, $settings);
+
+            $this->notifications->notify_appointment_saved(
+                $appointment,
+                $service,
+                $provider,
+                $customer,
+                $settings,
+                $manage_mode,
+            );
+
+            $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_SAVE, $appointment);
 
             json_response([
                 'success' => true,
@@ -666,6 +750,8 @@ class Calendar extends EA_Controller
 
             $filter_type = request('filter_type');
 
+			$only_busy = request( 'only_busy' ) !== "false";
+
             if (!$filter_type && !$is_all) {
                 json_response([
                     'appointments' => [],
@@ -712,7 +798,7 @@ class Calendar extends EA_Controller
                 AND is_unavailability = 0
             ';
 
-            $response['appointments'] = $this->appointments_model->get($where_clause);
+            $response['appointments'] = $this->appointments_model->get($where_clause,$only_busy);
 
             foreach ($response['appointments'] as &$appointment) {
                 $appointment['provider'] = $this->providers_model->find($appointment['id_users_provider']);

@@ -35,6 +35,7 @@ App.Utils.CalendarDefaultView = (function () {
     let $popoverTarget;
     let fullCalendar = null;
     let lastFocusedEventData; // Contains event data for later use.
+    let showCancelled = false;
 
     /**
      * Add the utility event listeners.
@@ -59,6 +60,19 @@ App.Utils.CalendarDefaultView = (function () {
                 calendarView.activeStart,
                 calendarView.activeEnd,
             );
+        });
+
+        const $showCancelledBtn = $('.fc-showCancelledBtn-button');
+        $showCancelledBtn.html(lang('show_cancelled'));
+        $showCancelledBtn.on('click', () => {
+            showCancelled = !showCancelled;
+            $reloadAppointments.trigger('click');
+            $showCancelledBtn.html(
+                showCancelled
+                    ? lang('hide_cancelled')
+                    : lang('show_cancelled')
+                );
+            
         });
 
         /**
@@ -201,6 +215,92 @@ App.Utils.CalendarDefaultView = (function () {
             }
         });
 
+        $calendarPage.on('click', '.cancel-popover', (event) => {
+                if ($popoverTarget) {
+                $popoverTarget.popover('dispose');
+            }
+
+            if (lastFocusedEventData.extendedProps.data.workingPlanException !== undefined) {
+                const providerId = $selectFilterItem.val();
+
+                const provider = vars('available_providers').find(
+                    (availableProvider) => Number(availableProvider.id) === Number(providerId),
+                );
+
+                if (!provider) {
+                    throw new Error('Provider could not be found: ' + providerId);
+                }
+
+                const successCallback = () => {
+                    App.Layouts.Backend.displayNotification(lang('working_plan_exception_deleted'));
+
+                    const workingPlanExceptions = JSON.parse(provider.settings.working_plan_exceptions) || {};
+                    delete workingPlanExceptions[date];
+
+                    for (const index in vars('available_providers')) {
+                        const availableProvider = vars('available_providers')[index];
+
+                        if (Number(availableProvider.id) === Number(providerId)) {
+                            availableProvider.settings.working_plan_exceptions = JSON.stringify(workingPlanExceptions);
+                            break;
+                        }
+                    }
+
+                    $reloadAppointments.trigger('click'); // Update the calendar.
+                };
+
+                const date = moment(lastFocusedEventData.start).format('YYYY-MM-DD');
+
+                App.Http.Calendar.deleteWorkingPlanException(date, providerId, successCallback);
+            } else if (!lastFocusedEventData.extendedProps.data.is_unavailability) {
+                const buttons = [
+                    {
+                        text: lang('close'),
+                        click: (event, messageModal) => {
+                            messageModal.hide();
+                        },
+                    },
+                    {
+                        text: lang('cancel'),
+                        click: (event, messageModal) => {
+                            const appointmentId = lastFocusedEventData.extendedProps.data.id;
+
+                            const cancellationReason = $('#cancellation-reason').val();
+
+                            //App.Http.Calendar.deleteAppointment(appointmentId, cancellationReason).done(() => {
+                            App.Http.Calendar.cancelAppointment(appointmentId, cancellationReason).done(() => {
+                                messageModal.hide();
+
+                                // Refresh calendar event items.
+                                $reloadAppointments.trigger('click');
+                            });
+                        },
+                    },
+                ];
+
+                App.Utils.Message.show(
+                    lang('cancel_appointment_title'),
+                    lang('write_appointment_removal_reason'),
+                    buttons,
+                );
+
+                $('<textarea/>', {
+                    'class': 'form-control w-100',
+                    'id': 'cancellation-reason',
+                    'rows': '3',
+                }).appendTo('#message-modal .modal-body');
+            } else {
+                // Do not display confirmation prompt.
+
+                const unavailabilityId = lastFocusedEventData.extendedProps.data.id;
+
+                App.Http.Calendar.deleteUnavailability(unavailabilityId).done(() => {
+                    // Refresh calendar event items.
+                    $reloadAppointments.trigger('click');
+                });
+            }
+        });
+
         /**
          * Event: Popover Delete Button "Click"
          *
@@ -249,19 +349,19 @@ App.Utils.CalendarDefaultView = (function () {
             } else if (!lastFocusedEventData.extendedProps.data.is_unavailability) {
                 const buttons = [
                     {
-                        text: lang('cancel'),
+                        text: lang('close'),
                         click: (event, messageModal) => {
                             messageModal.hide();
                         },
                     },
                     {
-                        text: lang('delete'),
+                        text: lang('cancel'),
                         click: (event, messageModal) => {
                             const appointmentId = lastFocusedEventData.extendedProps.data.id;
 
                             const cancellationReason = $('#cancellation-reason').val();
 
-                            App.Http.Calendar.deleteAppointment(appointmentId, cancellationReason).done(() => {
+                            App.Http.Calendar.cancelAppointment(appointmentId, cancellationReason).done(() => {
                                 messageModal.hide();
 
                                 // Refresh calendar event items.
@@ -272,7 +372,7 @@ App.Utils.CalendarDefaultView = (function () {
                 ];
 
                 App.Utils.Message.show(
-                    lang('delete_appointment_title'),
+                    lang('cancel_appointment_title'),
                     lang('write_appointment_removal_reason'),
                     buttons,
                 );
@@ -584,7 +684,7 @@ App.Utils.CalendarDefaultView = (function () {
                 ],
             });
         } else {
-            displayEdit = vars('privileges').appointments.edit === true ? '' : 'd-none';
+            displayEdit = vars('privileges').appointments.edit === true ? 'me-2' : 'd-none';
             displayDelete = vars('privileges').appointments.delete === true ? 'me-2' : 'd-none';
 
             const customerInfo = [];
@@ -727,17 +827,19 @@ App.Utils.CalendarDefaultView = (function () {
                                     }),
                                 ],
                             }),
+                            
                             $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary ' + displayDelete,
+                                'class': 'cancel-popover btn btn-outline-secondary ' + displayDelete,
                                 'html': [
                                     $('<i/>', {
-                                        'class': 'fas fa-trash-alt me-2',
+                                        'class': 'fas fa-calendar-xmark me-2',
                                     }),
                                     $('<span/>', {
-                                        'text': lang('delete'),
+                                        'text': lang('cancel'),
                                     }),
                                 ],
-                            }),
+                            }).prop('disabled',$target.hasClass('calevent-notbusy')),
+                            
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
                                 'html': [
@@ -754,7 +856,7 @@ App.Utils.CalendarDefaultView = (function () {
                 ],
             });
         }
-
+        
         $target.popover({
             placement: 'top',
             title: App.Utils.String.escapeHtml(info.event.title),
@@ -1199,7 +1301,7 @@ App.Utils.CalendarDefaultView = (function () {
 
         endDate = moment(endDate).format('YYYY-MM-DD');
 
-        App.Http.Calendar.getCalendarAppointments(recordId, startDate, endDate, filterType)
+        App.Http.Calendar.getCalendarAppointments(recordId, startDate, endDate, filterType, !showCancelled)
             .done((response) => {
                 const calendarEventSources = fullCalendar.getEventSources();
 
@@ -1229,7 +1331,9 @@ App.Utils.CalendarDefaultView = (function () {
                         start: moment(appointment.start_datetime).toDate(),
                         end: moment(appointment.end_datetime).toDate(),
                         allDay: false,
-                        color: appointment.color,
+                        color: appointment.is_busy? appointment.color: '#83828277',
+                        //color: appointment.color,
+                        className: appointment.is_busy?'':'calevent-notbusy',
                         data: appointment, // Store appointment data for later use.
                         display: 'block',
                     };
@@ -1492,6 +1596,9 @@ App.Utils.CalendarDefaultView = (function () {
 
         // Initialize page calendar
         fullCalendar = new FullCalendar.Calendar($calendar[0], {
+            customButtons: {
+                showCancelledBtn: {}
+            },
             initialView,
             locale: vars('language_code'),
             nowIndicator: true,
@@ -1511,7 +1618,7 @@ App.Utils.CalendarDefaultView = (function () {
             selectMirror: true,
             themeSystem: 'bootstrap5',
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prev,next today showCancelledBtn',
                 center: 'title',
                 right: 'timeGridDay,timeGridWeek,dayGridMonth',
             },
@@ -1649,7 +1756,7 @@ App.Utils.CalendarDefaultView = (function () {
             $('#calendar-actions button').prop('disabled', true);
         }
 
-        // Automatically refresh the calendar page every 10 seconds (without loading animation).
+        //Automatically refresh the calendar page every 10 seconds (without loading animation).
         setInterval(() => {
             if ($('.popover').length || App.Utils.CalendarSync.isCurrentlySyncing()) {
                 return;

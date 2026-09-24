@@ -28,6 +28,8 @@ class Appointments_model extends EA_Model
         'id_users_customer' => 'integer',
         'id_services' => 'integer',
         'total_price' => 'float',
+        'id_booking_statusses' => 'integer',
+        'is_busy' => 'boolean',
     ];
 
     /**
@@ -49,6 +51,7 @@ class Appointments_model extends EA_Model
         'googleCalendarId' => 'id_google_calendar',
         'caldavCalendarId' => 'id_caldav_calendar',
         'totalPrice' => 'total_price',
+        'bookingStatusId' => 'id_booking_statusses',
     ];
 
     /**
@@ -101,6 +104,7 @@ class Appointments_model extends EA_Model
             empty($appointment['id_services']) ||
             empty($appointment['id_users_provider']) ||
             empty($appointment['id_users_customer']) ||
+            empty($appointment['id_booking_statusses']) ||
             (empty($appointment['notes']) && $require_notes)
         ) {
             throw new InvalidArgumentException('Not all required fields are provided: ' . print_r($appointment, true));
@@ -178,6 +182,7 @@ class Appointments_model extends EA_Model
      */
     public function get(
         array|string|null $where = null,
+        ?bool $only_busy = true,
         ?int $limit = null,
         ?int $offset = null,
         ?string $order_by = null,
@@ -190,6 +195,11 @@ class Appointments_model extends EA_Model
             $this->db->order_by($this->quote_order_by($order_by));
         }
 
+		$this->db->join( 'booking_statusses', 'booking_statusses.id = appointments.id_booking_statusses', 'inner' );
+		$this->db->select( 'appointments.*, booking_statusses.is_busy' );
+        if ($only_busy) {
+			$this->db->where( [ 'booking_statusses.is_busy' => true ] );
+        }
         $appointments = $this->db
             ->get_where('appointments', ['is_unavailability' => false], $limit, $offset)
             ->result_array();
@@ -521,6 +531,7 @@ class Appointments_model extends EA_Model
 
         foreach ($appointments as &$appointment) {
             $this->cast($appointment);
+            $this->addSubservices($appointment);
         }
 
         return $appointments;
@@ -598,6 +609,7 @@ class Appointments_model extends EA_Model
                 $appointment['id_google_calendar'] !== null ? $appointment['id_google_calendar'] : null,
             'caldavCalendarId' =>
                 $appointment['id_caldav_calendar'] !== null ? $appointment['id_caldav_calendar'] : null,
+            'bookingStatusId' => $appointment['id_booking_statusses'] !== null ? (int) $appointment['id_booking_statusses'] : null,
         ];
 
         $appointment = $encoded_resource;
@@ -663,6 +675,10 @@ class Appointments_model extends EA_Model
 
         if (array_key_exists('caldavCalendarId', $appointment)) {
             $decoded_resource['id_caldav_calendar'] = $appointment['caldavCalendarId'];
+        }
+
+        if (array_key_exists('bookingStatusId', $appointment)) {
+            $decoded_resource['id_booking_statusses'] = $appointment['bookingStatusId'];
         }
 
         $decoded_resource['is_unavailability'] = false;
