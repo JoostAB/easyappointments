@@ -82,13 +82,6 @@ App.Pages.BusinessSettings = (function () {
             value: JSON.stringify(workingPlan),
         });
 
-        const appointmentStatusOptions = App.Components.AppointmentStatusOptions.getOptions($appointmentStatusOptions);
-
-        businessSettings.push({
-            name: 'appointment_status_options',
-            value: JSON.stringify(appointmentStatusOptions),
-        });
-
         return businessSettings;
     }
 
@@ -166,8 +159,6 @@ App.Pages.BusinessSettings = (function () {
         workingPlanManager.setup(companyWorkingPlan);
         workingPlanManager.timepickers(false);
         workingPlanManager.addEventListeners();
-
-        App.Components.AppointmentStatusOptions.setOptions($appointmentStatusOptions, appointmentStatusOptions);
 
         $saveSettings.on('click', onSaveSettingsClick);
 
