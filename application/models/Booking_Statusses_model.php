@@ -46,6 +46,21 @@ class Booking_Statusses_model extends EA_Model {
 		$statusses = $this->get();
 		return $statusses[0] ?? null;
     }
+    
+    public function find(int $status_id): array
+    {
+        $status = $this->db->get_where('booking_statusses', ['id' => $status_id])->row_array();
+
+        if (!$status) {
+            throw new InvalidArgumentException(
+                'The provided Booking status ID was not found in the database: ' . $status_id,
+            );
+        }
+
+        $this->cast($status);
+
+        return $status;
+    }
 
     public function get(
         array|string|null $where = null,

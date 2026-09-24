@@ -216,11 +216,89 @@ App.Utils.CalendarDefaultView = (function () {
         });
 
         $calendarPage.on('click', '.cancel-popover', (event) => {
-            if ($popoverTarget) {
+                if ($popoverTarget) {
                 $popoverTarget.popover('dispose');
             }
 
-            let tst = lastFocusedEventData.extendedProps.data;
+            if (lastFocusedEventData.extendedProps.data.workingPlanException !== undefined) {
+                const providerId = $selectFilterItem.val();
+
+                const provider = vars('available_providers').find(
+                    (availableProvider) => Number(availableProvider.id) === Number(providerId),
+                );
+
+                if (!provider) {
+                    throw new Error('Provider could not be found: ' + providerId);
+                }
+
+                const successCallback = () => {
+                    App.Layouts.Backend.displayNotification(lang('working_plan_exception_deleted'));
+
+                    const workingPlanExceptions = JSON.parse(provider.settings.working_plan_exceptions) || {};
+                    delete workingPlanExceptions[date];
+
+                    for (const index in vars('available_providers')) {
+                        const availableProvider = vars('available_providers')[index];
+
+                        if (Number(availableProvider.id) === Number(providerId)) {
+                            availableProvider.settings.working_plan_exceptions = JSON.stringify(workingPlanExceptions);
+                            break;
+                        }
+                    }
+
+                    $reloadAppointments.trigger('click'); // Update the calendar.
+                };
+
+                const date = moment(lastFocusedEventData.start).format('YYYY-MM-DD');
+
+                App.Http.Calendar.deleteWorkingPlanException(date, providerId, successCallback);
+            } else if (!lastFocusedEventData.extendedProps.data.is_unavailability) {
+                const buttons = [
+                    {
+                        text: lang('close'),
+                        click: (event, messageModal) => {
+                            messageModal.hide();
+                        },
+                    },
+                    {
+                        text: lang('cancel'),
+                        click: (event, messageModal) => {
+                            const appointmentId = lastFocusedEventData.extendedProps.data.id;
+
+                            const cancellationReason = $('#cancellation-reason').val();
+
+                            //App.Http.Calendar.deleteAppointment(appointmentId, cancellationReason).done(() => {
+                            App.Http.Calendar.cancelAppointment(appointmentId, cancellationReason).done(() => {
+                                messageModal.hide();
+
+                                // Refresh calendar event items.
+                                $reloadAppointments.trigger('click');
+                            });
+                        },
+                    },
+                ];
+
+                App.Utils.Message.show(
+                    lang('cancel_appointment_title'),
+                    lang('write_appointment_removal_reason'),
+                    buttons,
+                );
+
+                $('<textarea/>', {
+                    'class': 'form-control w-100',
+                    'id': 'cancellation-reason',
+                    'rows': '3',
+                }).appendTo('#message-modal .modal-body');
+            } else {
+                // Do not display confirmation prompt.
+
+                const unavailabilityId = lastFocusedEventData.extendedProps.data.id;
+
+                App.Http.Calendar.deleteUnavailability(unavailabilityId).done(() => {
+                    // Refresh calendar event items.
+                    $reloadAppointments.trigger('click');
+                });
+            }
         });
 
         /**
@@ -271,19 +349,19 @@ App.Utils.CalendarDefaultView = (function () {
             } else if (!lastFocusedEventData.extendedProps.data.is_unavailability) {
                 const buttons = [
                     {
-                        text: lang('cancel'),
+                        text: lang('close'),
                         click: (event, messageModal) => {
                             messageModal.hide();
                         },
                     },
                     {
-                        text: lang('delete'),
+                        text: lang('cancel'),
                         click: (event, messageModal) => {
                             const appointmentId = lastFocusedEventData.extendedProps.data.id;
 
                             const cancellationReason = $('#cancellation-reason').val();
 
-                            App.Http.Calendar.deleteAppointment(appointmentId, cancellationReason).done(() => {
+                            App.Http.Calendar.cancelAppointment(appointmentId, cancellationReason).done(() => {
                                 messageModal.hide();
 
                                 // Refresh calendar event items.
@@ -294,7 +372,7 @@ App.Utils.CalendarDefaultView = (function () {
                 ];
 
                 App.Utils.Message.show(
-                    lang('delete_appointment_title'),
+                    lang('cancel_appointment_title'),
                     lang('write_appointment_removal_reason'),
                     buttons,
                 );
@@ -760,7 +838,7 @@ App.Utils.CalendarDefaultView = (function () {
                                         'text': lang('cancel'),
                                     }),
                                 ],
-                            }),
+                            }).prop('disabled',$target.hasClass('calevent-notbusy')),
                             
                             $('<button/>', {
                                 'class': 'edit-popover btn btn-primary ' + displayEdit,
@@ -773,20 +851,12 @@ App.Utils.CalendarDefaultView = (function () {
                                     }),
                                 ],
                             }),
-                            $('<button/>', {
-                                'class': 'delete-popover btn btn-outline-secondary ' + displayDelete,
-                                'html': [
-                                    $('<i/>', {
-                                        'class': 'fas fa-trash-alt',
-                                    }),
-                                ],
-                            }),
                         ],
                     }),
                 ],
             });
         }
-
+        
         $target.popover({
             placement: 'top',
             title: App.Utils.String.escapeHtml(info.event.title),

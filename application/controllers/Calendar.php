@@ -421,6 +421,85 @@ class Calendar extends EA_Controller
     }
 
     /**
+     * Cancel appointment.
+     *
+     * This method cancels an existing appointment by changing its status.
+     * Notification emails are send to both provider and customer and the delete action is executed to the Google
+     * Calendar account of the provider, if the "google_sync" setting is enabled.
+     */
+    public function cancel_appointment(): void
+    {
+        try {
+            if (cannot('edit', 'appointments')) {
+                throw new RuntimeException('You do not have the required permissions for this task.');
+            }
+
+            $appointment_id = request('appointment_id');
+            $manage_mode = !empty($appointment_id);
+            $cancellation_reason = (string) request('cancellation_reason');
+
+            if (empty($appointment_id)) {
+                throw new InvalidArgumentException('No appointment id provided.');
+            }
+
+            // Store appointment data for later use in this method.
+            $appointment = $this->appointments_model->find($appointment_id);
+
+            $this->check_event_permissions((int) $appointment['id_users_provider']);
+
+            $provider = $this->providers_model->find($appointment['id_users_provider']);
+            $customer = $this->customers_model->find($appointment['id_users_customer']);
+            $service = $this->services_model->find($appointment['id_services']);
+
+            $company_color = setting('company_color');
+
+            $settings = [
+                'company_name' => setting('company_name'),
+                'company_email' => setting('company_email'),
+                'company_link' => setting('company_link'),
+                'company_color' =>
+                    !empty($company_color) && $company_color != DEFAULT_COMPANY_COLOR ? $company_color : null,
+                'date_format' => setting('date_format'),
+                'time_format' => setting('time_format'),
+            ];
+
+            // Update appointment record on the database.
+            // $status = $this->booking_statusses_model->find( 2 );
+            $appointment['id_booking_statusses'] = 2;
+            // $appointment['status'] = $status['name'];
+            $this->appointments_model->save( $appointment );
+
+            $this->notifications->notify_appointment_deleted(
+                $appointment,
+                $service,
+                $provider,
+                $customer,
+                $settings,
+                $cancellation_reason,
+            );
+
+            $this->synchronization->sync_appointment_saved($appointment, $service, $provider, $customer, $settings);
+
+            $this->notifications->notify_appointment_saved(
+                $appointment,
+                $service,
+                $provider,
+                $customer,
+                $settings,
+                $manage_mode,
+            );
+
+            $this->webhooks_client->trigger(WEBHOOK_APPOINTMENT_SAVE, $appointment);
+
+            json_response([
+                'success' => true,
+            ]);
+        } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
+
+    /**
      * Insert of update unavailability to database.
      */
     public function save_unavailability(): void

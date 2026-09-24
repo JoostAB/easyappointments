@@ -56,6 +56,25 @@ App.Http.Calendar = (function () {
     }
 
     /**
+     * Cancel an appointment
+     * 
+     * @param {Number} appointmentId 
+     * @param {String} cancellationReason 
+     * @returns {*|jQuery}
+     */
+    function cancelAppointment(appointmentId, cancellationReason) {
+        const url = App.Utils.Url.siteUrl('calendar/cancel_appointment');
+
+        const data = {
+            csrf_token: vars('csrf_token'),
+            appointment_id: appointmentId,
+            cancellation_reason: cancellationReason,
+        };
+
+        return $.post(url, data);
+    }
+
+    /**
      * Remove an appointment.
      *
      * @param {Number} appointmentId
@@ -245,6 +264,7 @@ App.Http.Calendar = (function () {
 
     return {
         saveAppointment,
+        cancelAppointment,
         deleteAppointment,
         saveUnavailability,
         deleteUnavailability,
