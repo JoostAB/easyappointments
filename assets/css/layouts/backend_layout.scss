@@ -250,6 +250,7 @@ body legend {
     margin: 5px 0;
 }
 
+
 .record-details {
     max-width: 800px;
     margin-bottom: 20px;
@@ -259,6 +260,24 @@ body legend {
 .record-details select:disabled,
 .record-details textarea:read-only {
     box-shadow: none;
+}
+
+.backend-page .import-systems {
+    max-width: 350px;
+    margin-bottom: 20px;
+}
+
+.backend-page .import-systems .systems .entry:hover:not(.selected) {
+    background-color: #f3f3f3;
+    cursor: pointer;
+}
+.backend-page .import-systems .systems .entry {
+    padding: 10px 7px;
+}
+
+.backend-page .import-systems .systems .entry.selected {
+    background-color: #f4f4f4;
+    border-right: 5px solid #429a82;
 }
 
 .backend-page {

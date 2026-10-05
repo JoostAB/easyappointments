@@ -71,4 +71,13 @@ class Integrations extends EA_Controller
 
         $this->load->view('pages/integrations');
     }
+
+    public function import(): void
+    {
+        try {
+            throw new RuntimeException( 'Failed import' );
+        } catch (Throwable $e) {
+            json_exception($e);
+        }
+    }
 }

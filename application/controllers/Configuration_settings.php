@@ -134,6 +134,4 @@ class Configuration_settings extends EA_Controller
             json_exception($e);
         }
     }
-
-    
 }

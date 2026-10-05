@@ -505,5 +505,13 @@ $lang['settings_are_invalid'] = 'Ongeldige waarde voor instelling';
 $lang['occupied'] = 'Bezet';
 $lang['show_cancelled'] = 'Toon geannuleerd';
 $lang['hide_cancelled'] = 'Verberg geannuleerd';
-
+$lang['data_import'] = 'DATA IMPORT';
+$lang['data_import_info'] = 'Deze integratie maakt het mogelijk om data te importeren van andere boekingsystemen. Welke data geïmporteerd kan worden hangt af van het bron systeem';
+$lang['source_systems'] = 'Bron systemen';
+$lang['import_type_customers'] = 'Klanten';
+$lang['import_type_schedule'] = 'Afspraken';
+$lang['import_type_employees'] = 'Medewerkers';
+$lang['import_data'] = 'Import data';
+$lang['no_file_selected'] = 'Geen bestand geselecteerd';
+$lang['file_uploaded'] = 'Bestand upload geslaagd';
 // End

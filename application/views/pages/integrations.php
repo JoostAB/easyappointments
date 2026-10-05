@@ -134,6 +134,30 @@
                     </div>
                 </div>
 
+                <!-- Dit wordt het import vak -->
+                <div class="col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="fw-light text-black-50 mb-0">
+                                <?= lang('data_import') ?>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 integration-info">
+                                <small>
+                                    <?= lang('data_import_info') ?>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <a href="<?= site_url('import_data') ?>" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-cogs me-2"></i>
+                                <?= lang('import') ?>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
