@@ -65,6 +65,26 @@ class Subservices_model extends Services_model {
 
     }
 
+    public function getSubserviceByName(string $name, bool $without_private = false): int
+    {
+        if ($without_private) {
+            $this->db->where('s1.is_private', false);
+        }
+
+        $service = $this->db
+            ->distinct()
+            ->select(
+                's1.id',
+            )
+            ->from('services s1')
+            ->where('s1.name', $name)
+            ->join('subservices sub', 'sub.subservice = s1.id','inner');
+
+        $service = $service->get()->result_array();
+
+        return (int) $service;
+    }
+
     public function getSubserviceIds(int $service_id): array
     {
         $services = $this->db->get_where('subservices', ['service' => $service_id])->result_array();

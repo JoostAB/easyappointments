@@ -30,6 +30,8 @@ App.Pages.ImportData = (function () {
 
                 App.Http.ImportData.upload(selectedSystem, field, data).done(() => {
                     App.Layouts.Backend.displayNotification(lang('file_uploaded'));
+                }).fail((err) => {
+                    App.Layouts.Backend.displayNotification('FAILED');
                 })
             })
             
