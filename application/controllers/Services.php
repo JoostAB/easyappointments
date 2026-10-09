@@ -33,6 +33,7 @@ class Services extends EA_Controller
         'attendants_number',
         'is_private',
         'id_service_categories',
+        'is_subservice',
     ];
     public array $optional_service_fields = [
         'id_service_categories' => null,
@@ -228,10 +229,13 @@ class Services extends EA_Controller
         }
     }
 
-    protected function syncSubservices(int $service_id, array $subservice_ids): void 
+    protected function syncSubservices(int $service_id, array|null $subservice_ids): void 
     {
 		$current = $this->subservices_model->getSubserviceIds( $service_id );
-        
+        if (!is_array($subservice_ids)) {
+            $subservice_ids = [];
+        }
+
         // First, delete all relations that are not valid anymore
         foreach($current as $currentId) {
             $currentId = (int) $currentId;

@@ -291,14 +291,7 @@ class Services_model extends EA_Model
      */
     public function get_available_services(bool $without_private = false): array
     {
-        // First create a sub-query to filer out all sub-services
-		$subQuery = $this->db
-			->distinct()
-			->select( 'subservice' )
-			->from( 'subservices' );
-		$subSql = $subQuery->get_compiled_select();
-
-		$this->db->where( key: 'ea_services.id not in (' . $subSql . ')' );
+        $this->db->where( 'services.is_subservice', false );
 
         if ($without_private) {
             $this->db->where('services.is_private', false);
@@ -307,7 +300,7 @@ class Services_model extends EA_Model
         $services = $this->db
             ->distinct()
             ->select(
-                'services.*, 0 as is_subservice, service_categories.name AS service_category_name, service_categories.id AS service_category_id',
+                'services.*, service_categories.name AS service_category_name, service_categories.id AS service_category_id',
             )
             ->from('services')
             ->join('services_providers', 'services_providers.id_services = services.id', 'inner')
@@ -350,10 +343,9 @@ class Services_model extends EA_Model
 
 		$services = $this->db
 			->distinct()
-			->select( 's.*, (isnull(sub.subservice) = 0) AS is_subservice', )
+            ->select( 's.*', )
 			->from( 'services s' )
-			->join( 'subservices sub', 'sub.subservice = s.id', 'left outer' )
-            ->order_by('sub.subservice')
+            ->order_by('s.is_subservice')
 			->order_by( 's.name ASC' )
 			->get()
 			->result_array();
@@ -387,37 +379,10 @@ class Services_model extends EA_Model
      */
     public function search(string $keyword, ?int $limit = null, ?int $offset = null, ?string $order_by = null): array
     {
-        /*
-        $services = $this->db
-            ->select()
-            ->from('services')
-            ->group_start()
-            ->like('name', $keyword)
-            ->or_like('description', $keyword)
-            ->group_end()
-            ->limit($limit)
-            ->offset($offset)
-            ->order_by($this->quote_order_by($order_by))
-            ->get()
-            ->result_array();
-        */
-        /*
-        $services = $this->db
-			->distinct()
-			->select( 's.*, (isnull(sub.subservice) = 0) AS is_subservice', )
-			->from( 'services s' )
-			->join( 'subservices sub', 'sub.subservice = s.id', 'left outer' )
-            ->order_by('sub.subservice')
-			->order_by( 's.name ASC' )
-			->get()
-			->result_array();
-            */    
-
         $services = $this->db
             ->distinct()
-			->select( 's.*, (isnull(sub.subservice) = 0) AS is_subservice', )
+            ->select( 's.*', )
 			->from( 'services s' )
-			->join( 'subservices sub', 'sub.subservice = s.id', 'left outer' )
             ->group_start()
             ->like('name', $keyword)
             ->or_like('description', $keyword)
@@ -425,7 +390,7 @@ class Services_model extends EA_Model
             ->limit($limit)
             ->offset($offset)
             ->order_by($this->quote_order_by($order_by))
-            ->order_by('sub.subservice')
+            ->order_by('s.is_subservice')
 			->order_by( 's.name ASC' )
             ->get()
             ->result_array();
