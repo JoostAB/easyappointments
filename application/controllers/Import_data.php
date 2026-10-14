@@ -1,6 +1,31 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
 use function PHPUnit\Framework\isNull;
+abstract class ImportException extends Exception {
+    protected $isError = false;
+
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null, bool $isError = false) {
+        $this->isError = $isError;
+        parent::__construct( $message, $code, $previous );
+    }
+
+    public function isError() :bool
+    {
+        return $this->isError;
+    }
+}
+
+class SkipImportException extends ImportException {
+    public function __construct(string $message = '', Throwable|null $previous = null, int $code = 0) {
+        parent::__construct( $message, $code, $previous, false );
+    }
+}
+
+class FailImportException extends ImportException {
+    public function __construct(string $message = '', Throwable|null $previous = null, int $code = 0) {
+        parent::__construct( $message, $code, $previous, true );
+    }
+}
 
 class Import_data extends EA_Controller
 {
@@ -12,6 +37,7 @@ class Import_data extends EA_Controller
         $this->load->model('roles_model');
         $this->load->model('services_model');
         $this->load->model('subservices_model');
+        $this->load->model( 'booking_statusses_model' );
     }
 
     public function index(): void {
@@ -19,7 +45,7 @@ class Import_data extends EA_Controller
 
         $user_id = session( 'user_id' );
 
-        if ( cannot( 'view', PRIV_SYSTEM_SETTINGS ) ) {
+        if ( cannot( 'edit', PRIV_SYSTEM_SETTINGS ) ) {
             if ( $user_id ) {
                 abort( 403, 'Forbidden' );
             }
@@ -32,6 +58,14 @@ class Import_data extends EA_Controller
         script_vars( [
             'import_systems' => $this->getSystemsList(),
         ] );
+
+        $role_slug = session('role_slug');
+
+        html_vars([
+            'page_title' => lang('data_import'),
+            'user_display_name' => $this->accounts->get_user_display_name($user_id),
+            'privileges' => $this->roles_model->get_permissions_by_slug($role_slug),
+        ]);
 
         $this->load->view('pages/import_data');
     }
@@ -79,16 +113,24 @@ class Import_data extends EA_Controller
 
             if (method_exists($this, $method)) {
                 $ret = $this->$method( $data );
-                $return['skipped'] = count($ret['skipped']);
-                $return['failed'] = count($ret['failed']);
-                $return['imported'] = $ret['imported'];
+                $return['system'] = $system;
+                $return['type'] = $type;
+                $return = array_merge( $return, $ret );
             } else {
                 throw new RuntimeException( 'No method ' . $method . ' defined' );
             }
 
             $return['success'] = true;
 
+            try {
+                $return = json_encode( $return, (JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE) );
+            } catch (Throwable $je) {
+                $return['success'] = false;
+            }
+
             json_response( $return );
+
+            
         } catch (Throwable $e) {
             json_exception( $e );
         }
@@ -99,7 +141,7 @@ class Import_data extends EA_Controller
         $return = [
             'skipped' => [],
             'failed' => [],
-            'imported' => 0,
+            'imported' => [],
         ];
 
         $lines = $this->dataToLines( $data );
@@ -158,12 +200,13 @@ class Import_data extends EA_Controller
                 if ( $doSave ) {
                     try {
                         $this->customers_model->save( $customer );
+                        $return['imported'][] = $customer;
                     } catch (LogicException $e) {
-                        $return['failed'][] = $values;
+                        $return['failed'][] = $customer;
                     }
 
                 } else {
-                    $return['skipped'][] = $values;
+                    $return['skipped'][] = $customer;
                 }
             }
         }
@@ -175,11 +218,13 @@ class Import_data extends EA_Controller
         $return = [
             'skipped' => [],
             'failed' => [],
-            'imported' => 0,
+            'imported' => [],
         ];
-        
-        $lines = $this->dataToLines( $data );
 
+        $statusBooked = $this->booking_statusses_model->getDefault();
+        $statusCancelled = $this->booking_statusses_model->get( [ 'name' => 'Geannuleerd' ] )[0];
+        $lines = $this->dataToLines( $data );
+        
         $roles = $this->roles_model->get(['slug' => DB_SLUG_PROVIDER]);
 
         if ((!is_array($roles)) || (count($roles) <> 1)) {
@@ -190,102 +235,134 @@ class Import_data extends EA_Controller
 
         while ( count( $lines ) > 0 ) {
             $values = array_shift( $lines );
-            $doSave = false;
+            $newCust = false;
 
             if ( count( $values ) >= 25 ) {
-                $times = explode( '-', $values[1], 2 );
-
                 try {
-                    $custId = $this->customers_model->find_record_id( [ 'email' => $values[6] ] );
-                } catch(InvalidArgumentException $iae) {
-                    // Customer doesn't exist yet. Create it
-                    $names = explode( ' ', $values[5], 2 );
+                    $times = explode( '-', $values[1], 2 );
 
-                    if ( count( $names ) == 1 ) {
-                        // Last name is mandatory, so if not given use a space
-                        $names[] = ' ';
+                    try {
+                        $custId = $this->customers_model->find_record_id( [ 'email' => $values[6] ] );
+                    } catch (InvalidArgumentException $iae) {
+                        // Customer doesn't exist yet. Create it
+                        $names = explode( ' ', $values[5], 2 );
+
+                        if ( count( $names ) == 1 ) {
+                            // Last name is mandatory, so if not given use a space
+                            $names[] = ' ';
+                        }
+
+                        // Remove strange first character from phone number
+                        if ( ord( substr( $values[7], 0, 1 ) ) == 39 ) {
+                            $values[7] = substr( $values[7], 1 );
+                        }
+
+                        $values[8] = ( $values[8] == 'Netherlands' ) ? null : $values[8];
+
+                        $newCust = [
+                            'email' => $values[6],
+                            'phone_number' => $values[7],
+                            'first_name' => $names[0],
+                            'last_name' => $names[1],
+                            'address' => $values[8],
+                            'timezone' => 'Europe/Amsterdam',
+                            'custom_field_5' => 'Imported from SBK',
+                            'language' => 'dutch',
+                        ];
+
+                        try {
+                            $custId = $this->customers_model->save( $newCust );
+                            $newCust['id'] = $custId;
+                            $return['customers'][] = $newCust;
+                        } catch (Throwable $e) {
+                            throw new FailImportException( "Failed to import new Customer", $e );
+                        }
                     }
-
-                    // Remove strange first character from phone number
-                    if ( ord( substr( $values[7], 0, 1 ) ) == 39 ) {
-                        $values[2] = substr( $values[7], 1 );
-                    }
-
-                    $values[8] = ( $values[8] == 'Netherlands' ) ? null : $values[8];
-
-                    $newCust = [
-                        'email' => $values[6],
-                        'phone_number' => $values[7],
-                        'first_name' => $names[0],
-                        'last_name' => $names[1],
-                        'address' => $values[8],
-                        'timezone' => 'Europe/Amsterdam',
-                        'custom_field_5' => 'Imported from SBK',
-                        'language' => 'dutch',
-                    ];
-
-                    $custId = $this->customers_model->save( $newCust );
-                }
-
-
-                /**
-                 * @todo Make sure the method of finding the correct service is correct
-                 */
-                $appointment = [
-                    'start_datetime' => $this->toSQLDateTime( trim( $values[0] ), $times[0] ),
-                    'end_datetime' => $this->toSQLDateTime( trim( $values[0] ), $times[1] ),
-                    //'id_users_customer' => $this->customers_model->find_record_id( ['email' => $values[6]] ),
-                    'id_users_customer' => $custId,
-                ];
                 
-                $orgApp = $this->appointments_model->get([
-                        'start_datetime' => $appointment['start_datetime'],
-                        'end_datetime' => $appointment['end_datetime'],
-                        'id_users_customer' => $appointment['id_users_customer'],
-                    ], $limit = 1);
+                    /**
+                     * @todo Make sure the method of finding the correct service is correct
+                     */
+                    $appointment = [
+                        'start_datetime' => $this->toSQLDateTime( trim( $values[0] ), $times[0] ),
+                        'end_datetime' => $this->toSQLDateTime( trim( $values[0] ), $times[1] ),
+                        //'id_users_customer' => $this->customers_model->find_record_id( ['email' => $values[6]] ),
+                        'id_users_customer' => $custId,
+                    ];
+                    
+                    $orgApp = $this->appointments_model->get([
+                            'start_datetime' => $appointment['start_datetime'],
+                            'end_datetime' => $appointment['end_datetime'],
+                            'id_users_customer' => $appointment['id_users_customer'],
+                        ], $limit = 1);
 
+                    if (is_array($orgApp) & (count($orgApp) > 0)) {
+                        throw new SkipImportException( 'Appointment already exists' );
+                    }
 
-                if (!$orgApp) {
+                    
                     // New appointment, create full appointment
                     $subservices = [];
                     if (strlen($values[24]) > 0) {
                         $tmp = explode( ',', $values[24] );
                         foreach ($tmp as $s) {
-                            $s = trim(substr( $s, 0, strpos( $s, '(' ) ));
-                            $s = $this->subservices_model->getSubserviceByName( $s , true);
+                            $sName = trim(substr( $s, 0, strpos( $s, '(' ) ));
+                            $s = $this->subservices_model->getSubserviceByName( $sName , true);
+                            if ($s == 0) {
+                                if ($newCust) {
+                                    $this->customers_model->delete( $custId );
+                                    unset($return['customers'][array_search($newCust, $return['customers'])]);
+                                    $newCust = false;
+                                }
+                                throw new FailImportException("SubService '{$sName}' not found");
+                            }
                             $subservices[] = $s;
                         }
                     }
 
-                    $serviceId = $this->services_model->get( [ 'name' => $values[2] ] )[0]['id'];
-
-                    if ($serviceId) {
-                        $appointment = array_merge( $appointment, [
-                            'id' => null,
-                            'id_users_provider' => $this->users_model->get(['first_name' => $values[3], 'id_roles' => $providerRole])[0]['id'],
-                            'id_booking_statusses' => 1, // 1 = Booked
-                            'id_services' => $serviceId,
-                            'location' => 'SBK',
-                        ] );
-                        
-                        //$doSave = true;
-                        $doSave = false;
+                    if (count($subservices) > 0) {
+                        $appointment['ids_subservices'] = $subservices;
                     }
 
-                    
-                } else {
-                    $doSave = false;
-                }
+                    $serviceId = $this->services_model->get( [ 'name' => $values[2] ] );
+                    if ( (count($serviceId) == 0) | !$serviceId[0]['id']) {
+                        if ($newCust) {
+                            $this->customers_model->delete( $custId );
+                            unset($return['customers'][array_search($newCust, $return['customers'])]);
+                            $newCust = false;
+                        }
+                        throw new FailImportException("Service '{$values[2]}' not found");
+                    }
 
-                if ( $doSave ) {
+                    $appointment = array_merge( $appointment, [
+                        'id' => null,
+                        'id_users_provider' => $this->users_model->get( [ 'first_name' => $values[3], 'id_roles' => $providerRole ] )[0]['id'],
+                        //'id_booking_statusses' => 1, // 1 = Booked
+                        'id_booking_statusses' => ($values[13] == 'Nee') ? $statusBooked['id'] : $statusCancelled['id'],
+                        'id_services' => $serviceId[0]['id'],
+                        'location' => 'SBK',
+                        'is_unavailability' => 0,
+                    ] );
+
+
+
                     try {
                         $this->appointments_model->save( $appointment );
-                    } catch (LogicException $e) {
-                        $return['failed'][] = $values;
+                    } catch (Throwable $e) {
+                        if ($newCust) {
+                            $this->customers_model->delete( $custId );
+                            unset($return['customers'][array_search($newCust, $return['customers'])]);
+                            $newCust = false;
+                        }
+                        throw new FailImportException( "Import of appoinment failed", $e );
                     }
-
-                } else {
-                    $return['skipped'][] = $values;
+                    
+                    // Success!!! Add to imported array
+                    $return['imported'][] = $appointment;
+                } catch (FailImportException $fie) {
+                    $return['failed'][] = $appointment;
+                    $return['messages'][] = $fie->getMessage(); 
+                } catch (SkipImportException $sie) {
+                    $return['skipped'][] = $appointment;
                 }
             }
         }

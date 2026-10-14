@@ -1,12 +1,11 @@
 App.Http.ImportData = (function () {
 
-    function fUrl(url) {
-        const furl = App.Utils.Url.siteUrl('import_data/' + url);
-        return furl;
+    function fullUrl(url) {
+        return App.Utils.Url.siteUrl('import_data/' + url);
     }
 
     function upload(system, type, file) {
-        const url = fUrl('upload');
+        const url = fullUrl('upload');
 
         const data = {
 
@@ -21,23 +20,7 @@ App.Http.ImportData = (function () {
         return $.post(url, data);
     }
 
-    /**
-     * 
-     * @returns Object
-     * OBSOLETE
-     */ 
-    // function getSystems() {
-    //     const url = fUrl('get_systems');
-
-    //     const data = {
-    //         csrf_token: vars('csrf_token'),
-    //     };
-
-    //     return $.post(url, data);
-    // }
-
     return {
-        //getSystems
         upload
     };
 })();

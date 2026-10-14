@@ -505,7 +505,7 @@ $lang['settings_are_invalid'] = 'Settings are invalid';
 $lang['occupied'] = 'Occupied';
 $lang['show_cancelled'] = 'Show cancelled';
 $lang['hide_cancelled'] = 'Hide cancelled';
-$lang['data_import'] = 'DATA IMPORT';
+$lang['data_import'] = 'Data Import';
 $lang['data_import_info'] = 'This integration enables you to import existing data from other scheduling software';
 $lang['source_systems'] = 'Source systems';
 $lang['import_type_customers'] = 'Customers';
@@ -513,5 +513,12 @@ $lang['import_type_schedule'] = 'Appointments';
 $lang['import_type_employees'] = 'Employees';
 $lang['import_data'] = 'Import data';
 $lang['no_file_selected'] = 'No file selected';
-$lang['file_uploaded'] = 'File successfully uploaded';
+$lang['import_data_success'] = 'File successfully uploaded';
+$lang['import_data_failed'] = 'File upload failed';
+$lang['import_imported'] = 'imported';
+$lang['import_skipped'] = 'skipped';
+$lang['import_failed'] = 'failed';
+$lang['import_results_title'] = 'Detailed data import results';
+$lang['import_messages'] = 'Messages';
+
 // End

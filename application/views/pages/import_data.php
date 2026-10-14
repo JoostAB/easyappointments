@@ -2,8 +2,8 @@
 
 <?php section('content'); ?>
 
-<div class="container backend-page" id="data-import-page">
-    <div class="row" id="data-import">
+<div class="container backend-page data-import-page" id="data-import-page">
+    <div class="row data-import" id="data-import">
         <div id="import-systems" class="import-systems filter-records col col-12 col-lg-5">
             <h4 class="text-black-50 mb-3 fw-light">
                 <?= lang('data_import') ?> 
@@ -35,7 +35,12 @@
             </form>
         </div>
     </div>
+
+    <button class="btn btn-secondary btntest" type="button">Import Result</button>
 </div>
+
+<!-- Page Components -->
+<?php component('import_results_modal'); ?>
 
 <?php end_section('content'); ?>
 

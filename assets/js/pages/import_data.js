@@ -2,10 +2,12 @@ App.Pages.ImportData = (function () {
     const $SystemList = $('#import-systems');
     const $DetailsList = $('.import-system-details');
     const $SystemsTitle = $('h4.import-data-title');
-
+    const $ResultsModal = $('#import-results-modal');
     const importSystems = vars('import_systems') || [];
 
+    
     let selectedSystem = null;
+    let lastResult = null;
 
     function getSystemById(id) {
         return importSystems.find((s) => { return s.id == id; });
@@ -19,8 +21,6 @@ App.Pages.ImportData = (function () {
 
         if (file) {
             App.Utils.File.toBase64(file).then((base64) => {
-                // const crypto = window.crypto;
-                // crypto.subtle.encrypt()
                 const data = {
                     'fileBase64': base64,
                     'filename': file.name,
@@ -28,16 +28,31 @@ App.Pages.ImportData = (function () {
                     'type': field
                 };
 
-                App.Http.ImportData.upload(selectedSystem, field, data).done(() => {
-                    App.Layouts.Backend.displayNotification(lang('file_uploaded'));
-                }).fail((err) => {
-                    App.Layouts.Backend.displayNotification('FAILED');
-                })
+                App.Http.ImportData.upload(selectedSystem, field, data).then((result) => {
+                    lastResult = result;
+                    showResults(result);
+                });
             })
             
         } else {
             App.Layouts.Backend.displayNotification(lang('no_file_selected'));
         }
+    }
+
+    function showResults(result) {
+        if (!result) {
+            result = (lastResult != null)? lastResult : {
+                success: false,
+                failed: [],
+                imported: [],
+                skipped: [],
+
+            };
+        }
+
+        App.Components.ImportResultsModal.setImportResult(result);
+            
+        $ResultsModal.modal('show');
     }
 
     function updateTitle() {
@@ -159,6 +174,17 @@ App.Pages.ImportData = (function () {
             updateTitle();
 
             App.Pages.ImportData.showUploadFields(selectedSystem);
+        });
+
+        $(".btntest").on('click', () => {
+            showResults({
+                    success: false,
+                    type: 'schedule',
+                    failed: [],
+                    imported: [['Regel','1'], ['Regel','2']],
+                    skipped: [['Skipped','1']],
+                    customers: [],
+                });
         });
     }
 

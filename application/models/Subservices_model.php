@@ -83,7 +83,7 @@ class Subservices_model extends Services_model {
 
         $service = $service->get()->result_array();
 
-        return (int) $service;
+        return (is_array($service) & (count($service)>0))?$service[0]['id']:0;
     }
 
     public function getSubserviceIds(int $service_id): array
