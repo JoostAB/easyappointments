@@ -271,6 +271,7 @@ class Import_data extends EA_Controller
                         ];
 
                         try {
+                            unset( $custId );
                             $custId = $this->customers_model->save( $newCust );
                             $newCust['id'] = $custId;
                             $return['customers'][] = $newCust;
@@ -324,7 +325,7 @@ class Import_data extends EA_Controller
                     }
 
                     $serviceId = $this->services_model->get( [ 'name' => $values[2] ] );
-                    if ( (count($serviceId) == 0) | !$serviceId[0]['id']) {
+                    if ( (count($serviceId) == 0) | !isset($serviceId[0])) {
                         if ($newCust) {
                             $this->customers_model->delete( $custId );
                             unset($return['customers'][array_search($newCust, $return['customers'])]);
@@ -359,7 +360,8 @@ class Import_data extends EA_Controller
                     // Success!!! Add to imported array
                     $return['imported'][] = $appointment;
                 } catch (FailImportException $fie) {
-                    $return['failed'][] = $appointment;
+                    //$return['failed'][] = $appointment;
+                    $return['failed'][] = $values;
                     $return['messages'][] = $fie->getMessage(); 
                 } catch (SkipImportException $sie) {
                     $return['skipped'][] = $appointment;
