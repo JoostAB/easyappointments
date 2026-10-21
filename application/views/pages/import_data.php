@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <button class="btn btn-secondary btntest" type="button">Import Result</button>
+    <!-- <button class="btn btn-secondary btntest" type="button">Import Result</button> -->
 </div>
 
 <!-- Page Components -->
