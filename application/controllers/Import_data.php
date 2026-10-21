@@ -77,11 +77,11 @@ class Import_data extends EA_Controller
             'data' => ['customers', 'schedule']
         ];
 
-        $systems[] = [
-            'id' => 'TST',
-            'name' => 'TestSystem',
-            'data' => ['employees', 'schedule']
-        ];
+        // $systems[] = [
+        //     'id' => 'TST',
+        //     'name' => 'TestSystem',
+        //     'data' => ['employees', 'schedule']
+        // ];
 
         return $systems;
     }
