@@ -225,6 +225,36 @@ class Customers_model extends EA_Model
         return $count > 0;
     }
 
+    public function find_by_email(string $email): array
+    {
+        if (empty($email)) {
+            throw new InvalidArgumentException('The customer email was not provided');
+        }
+
+        $customer = $this->db
+            ->select('users.*')
+            ->from('users')
+            ->join('roles', 'roles.id = users.id_roles', 'inner')
+            ->where('users.email', $email)
+            ->where('roles.slug', DB_SLUG_CUSTOMER)
+            ->get()
+            ->row_array();
+
+        if (empty($customer)) {
+            throw new InvalidArgumentException('Could not find customer record id.');
+        }
+
+        if (!$customer) {
+            throw new InvalidArgumentException(
+                "The provided customer email was not found in the database: $email",
+            );
+        }
+
+        $this->cast($customer);
+
+        return $customer;
+    }
+
     /**
      * Find the record ID of a customer.
      *
@@ -240,18 +270,7 @@ class Customers_model extends EA_Model
             throw new InvalidArgumentException('The customer email was not provided: ' . print_r($customer, true));
         }
 
-        $customer = $this->db
-            ->select('users.id')
-            ->from('users')
-            ->join('roles', 'roles.id = users.id_roles', 'inner')
-            ->where('users.email', $customer['email'])
-            ->where('roles.slug', DB_SLUG_CUSTOMER)
-            ->get()
-            ->row_array();
-
-        if (empty($customer)) {
-            throw new InvalidArgumentException('Could not find customer record id.');
-        }
+        $customer = $this->find_by_email( $customer['email'] );
 
         return (int) $customer['id'];
     }

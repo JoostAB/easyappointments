@@ -101,11 +101,11 @@ if (!function_exists('json_response')) {
      *  'message' => 'This is a JSON property.'
      * ]);
      *
-     * @param array $content
+     * @param array|string $content
      * @param int $status
      * @param array $headers
      */
-    function json_response(array $content = [], int $status = 200, array $headers = []): void
+    function json_response(array|string $content = [], int $status = 200, array $headers = []): void
     {
         /** @var EA_Controller $CI */
         $CI = &get_instance();
@@ -114,10 +114,14 @@ if (!function_exists('json_response')) {
             $CI->output->set_header($header);
         }
 
+        if (is_array($content)) {
+            $content = json_encode($content);
+        }
+
         $CI->output
             ->set_status_header($status)
             ->set_content_type('application/json')
-            ->set_output(json_encode($content));
+            ->set_output($content);
     }
 }
 
