@@ -27,9 +27,14 @@
         <label for="password" class="form-label">
             <?= lang('password') ?>
         </label>
-        <input type="password" id="password" placeholder="<?= lang(
-            'enter_password_here',
-        ) ?>" class="form-control" required/>
+        <div class="input-group">
+            <input type="password" id="password" 
+                placeholder="<?= lang('enter_password_here') ?>" 
+                class="form-control" required/>
+            <button type="button" id="togglepw" class="btn btn-outline-primary">
+                <i class="fas fa-eye-slash"></i>
+            </button>
+        </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-5">

@@ -18,7 +18,7 @@ App.Pages.Login = (function () {
     const $loginForm = $('#login-form');
     const $username = $('#username');
     const $password = $('#password');
-
+    
     /**
      * Login Button "Click"
      *
@@ -51,6 +51,10 @@ App.Pages.Login = (function () {
     }
 
     $loginForm.on('submit', onLoginFormSubmit);
+  
+    $("#togglepw").on('click', () => {
+        $password.attr('type', $password.attr('type') === 'text'?'password':'text');
+    });
 
     return {};
 })();
