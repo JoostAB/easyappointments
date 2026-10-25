@@ -479,7 +479,7 @@ App.Pages.Booking = (function () {
         }
         switch (format) {
             case 'DATE':
-                value = App.Utils.Date.format(value, 'DMY');
+                value = (value != null) ? App.Utils.Date.format(value, 'DMY'):null;
                 break;
             case 'BOOL':
                 $target.prop('checked', value);
